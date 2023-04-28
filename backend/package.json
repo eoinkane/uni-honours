@@ -1,8 +1,8 @@
 {
-  "name": "backend-cdkv2",
+  "name": "backend",
   "version": "0.1.0",
   "bin": {
-    "backend-cdkv2": "bin/backend-cdkv2.js"
+    "backend": "bin/backend.js"
   },
   "scripts": {
     "build": "npm -s run build-cdk && npm -s run build-auth-lambda && npm -s run build-handler-lambda",

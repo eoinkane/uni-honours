@@ -18,7 +18,7 @@ const awsSubnetName = process.env.AWS_SUBNET_NAME || 'subnet-name';
 const awsSubnetIds = (process.env.AWS_SUBNET_IDS || 'subnet-id1,subnet-id2').split(',');
 const awsAvailabilityZones = (process.env.AWS_AVAILABILITY_ZONES || 'zone-1,zone2').split(',');
 
-export class BackendCdkv2Stack extends cdk.Stack {
+export class BackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
