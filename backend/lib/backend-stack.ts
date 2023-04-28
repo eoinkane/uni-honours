@@ -7,7 +7,7 @@ import { LambdaRestApi } from '@aws-cdk/aws-apigateway'
 dotenv.config();
 
 const cdkStack = process.env.CDK_STACK || 'BackendStack';
-const cdkId = process.env.CDK_ID || 'BackendStack'
+const cdkId = process.env.CDK_ID || 'BackendStack';
 
 export class BackendStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
