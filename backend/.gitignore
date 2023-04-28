@@ -11,3 +11,4 @@ build
 .venv
 !.nvmrc
 !.python-version
+.env
