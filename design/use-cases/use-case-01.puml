@@ -1,0 +1,38 @@
+@startuml
+'https://plantuml.com/use-case-diagram
+
+:Developer: as Dev
+:Business Manager: as DM
+
+rectangle "DORA Dashboard System" {
+    left to right direction
+
+    (Check number of code changes) as (checks-changes)
+    Dev --> (checks-changes)
+    (checks-changes) <-- DM
+
+    (Check deployment frequency) as (checks-deploys)
+    Dev --> (checks-deploys)
+    (checks-deploys) <-- DM
+
+    (Check change failure rate) as (checks-failures)
+    Dev --> (checks-failures)
+    (checks-failures) <-- DM
+
+    (Check mean time to recovery) as (checks-recovery-time)
+    Dev --> (checks-recovery-time)
+    (checks-recovery-time) <-- DM
+
+    (Record DORA metrics) as (record)
+}
+
+together {
+    (Introduce code changes) as (make-changes)
+    Dev --> (make-changes)
+
+    (make-changes) <.. (Develop) : <<extends>>
+    (make-changes) <.. (Release) : <<extends>>
+
+    (make-changes) --> (record)
+}
+@enduml
