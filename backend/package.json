@@ -1,0 +1,36 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "bin": {
+    "backend": "bin/backend.js"
+  },
+  "scripts": {
+    "init": "mkdir build",
+    "build": "tsc && npm -s run build-hello-world-lambda",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy --app cdk.out",
+    "clean": "rm -rf ./build",
+    "build-hello-world-lambda": "rm -rf build/hello-world-lambda && mkdir build/hello-world-lambda && pip install --platform manylinux2014_x86_64  --only-binary=:all: --target=build/hello-world-lambda -r code/hello-world-lambda/requirements.txt && cp -r code/hello-world-lambda/src build/hello-world-lambda/"
+  },
+  "devDependencies": {
+    "@aws-cdk/assertions": "1.198.0",
+    "@types/babel__traverse": "7.18.2",
+    "@types/jest": "^27.5.0",
+    "@types/node": "10.17.27",
+    "@types/prettier": "2.6.0",
+    "aws-cdk": "1.198.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "ts-node": "^10.8.1",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-apigateway": "^1.198.0",
+    "@aws-cdk/aws-lambda": "^1.198.0",
+    "@aws-cdk/core": "1.198.0",
+    "source-map-support": "^0.5.21"
+  }
+}
