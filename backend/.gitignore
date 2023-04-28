@@ -12,3 +12,6 @@ build
 !.nvmrc
 !.python-version
 .env
+
+code/*/.env.json
+**/*__pycache__
