@@ -1,0 +1,35 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "bin": {
+    "backend": "bin/backend.js"
+  },
+  "scripts": {
+    "build": "npm -s run build-cdk && npm -s run build-auth-lambda && npm -s run build-handler-lambda",
+    "build-cdk": "tsc",
+    "build-auth-lambda": "rm -rf build/auth_lambda && mkdir -p build/auth_lambda && cp -r code/auth_lambda/src build/auth_lambda/",
+    "build-handler-lambda": "rm -rf build/handler_lambda && mkdir -p build/handler_lambda && pip install --platform manylinux2014_x86_64  --only-binary=:all: --target=build/handler_lambda -r code/handler_lambda/requirements.txt && cp -r code/handler_lambda/src build/handler_lambda/",
+    "cdk": "cdk",
+    "clean": "rm -rf ./build ./cdk.out",
+    "deploy": "cdk deploy --outputs-file cdk.out/outputs.json --app cdk.out",
+    "init": "mkdir -p build",
+    "synth": "find ./cdk.out -name 'asset.*' -print0 | xargs -0 rm -rf && cdk synth",
+    "test": "jest",
+    "watch": "tsc -w"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.4.0",
+    "@types/node": "18.14.6",
+    "aws-cdk": "2.72.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.1",
+    "typescript": "~4.9.5"
+  },
+  "dependencies": { 
+    "aws-cdk-lib": "2.32.1",
+    "constructs": "^10.0.0",
+    "dotenv": "^16.0.3",
+    "source-map-support": "^0.5.21"
+  }
+}

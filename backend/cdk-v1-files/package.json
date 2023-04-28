@@ -1,0 +1,44 @@
+{
+    "name": "backend",
+    "version": "0.1.0",
+    "bin": {
+      "backend": "bin/backend.js"
+    },
+    "scripts": {
+      "build": "npm -s run build-cdk && npm -s run build-auth-lambda && npm -s run build-handler-lambda",
+      "build-cdk": "tsc",
+      "build-auth-lambda": "rm -rf build/auth_lambda && mkdir -p build/auth_lambda && cp -r code/auth_lambda/src build/auth_lambda/",
+      "build-handler-lambda": "rm -rf build/handler_lambda && mkdir -p build/handler_lambda && pip install --platform manylinux2014_x86_64  --only-binary=:all: --target=build/handler_lambda -r code/handler_lambda/requirements.txt && cp -r code/handler_lambda/src build/handler_lambda/",
+      "cdk": "cdk",
+      "clean": "rm -rf ./build ./cdk.out",
+      "deploy": "cdk deploy --outputs-file cdk.out/outputs.json --app cdk.out",
+      "init": "mkdir -p build",
+      "synth": "find ./cdk.out -name 'asset.*' -print0 | xargs -0 rm -rf && cdk synth",
+      "test": "jest",
+      "watch": "tsc -w"
+    },
+    "devDependencies": {
+      "@aws-cdk/assertions": "1.198.0",
+      "@types/babel__traverse": "7.18.2",
+      "@types/jest": "^27.5.0",
+      "@types/node": "10.17.27",
+      "@types/prettier": "2.6.0",
+      "aws-cdk": "1.198.0",
+      "jest": "^27.5.1",
+      "ts-jest": "^27.1.4",
+      "ts-node": "^10.8.1",
+      "typescript": "~3.9.7"
+    },
+    "dependencies": { 
+      "@aws-cdk/aws-apigateway": "1.198.0",
+      "@aws-cdk/aws-cloudfront": "1.198.0",
+      "@aws-cdk/aws-cloudfront-origins": "1.198.0",
+      "@aws-cdk/aws-ec2": "1.198.0",
+      "@aws-cdk/aws-lambda": "1.198.0",
+      "@aws-cdk/aws-s3": "1.198.0",
+      "@aws-cdk/core": "1.198.0",
+      "dotenv": "^16.0.3",
+      "source-map-support": "^0.5.21"
+    }
+  }
+  
