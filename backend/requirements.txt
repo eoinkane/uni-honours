@@ -1,1 +1,2 @@
 -r code/handler_lambda/requirements.txt
+black==23.3.0
