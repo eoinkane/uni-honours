@@ -15,6 +15,7 @@ dotenv.config();
 const cdkStack = process.env.CDK_STACK || 'BackendStack';
 const cdkId = process.env.CDK_ID || 'BackendStack';
 const authToken = process.env.AUTH_TOKEN || 'test-token';
+const jenkinsApiUrl = process.env.JENKINS_API_URL || 'url';
 
 export class BackendStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -24,7 +25,10 @@ export class BackendStack extends cdk.Stack {
       runtime: Runtime.PYTHON_3_9,
       handler: 'src.app.handler',
       code: Code.fromAsset(path.join(__dirname, '../build', 'handler-lambda')),
-      functionName: `${cdkStack}-handler-lambda`
+      functionName: `${cdkStack}-handler-lambda`,
+      environment: {
+        JENKINS_API_URL: jenkinsApiUrl
+      }
     });
 
     const authLambda = new Function(this, `${cdkId}AuthLambda`, {
