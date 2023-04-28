@@ -5,8 +5,8 @@
     "backend": "bin/backend.js"
   },
   "scripts": {
-    "build": "tsc && npm -s run build-hello-world-lambda",
-    "build-hello-world-lambda": "rm -rf build/hello-world-lambda && mkdir build/hello-world-lambda && pip install --platform manylinux2014_x86_64  --only-binary=:all: --target=build/hello-world-lambda -r code/hello-world-lambda/requirements.txt && cp -r code/hello-world-lambda/src build/hello-world-lambda/",
+    "build": "tsc && npm -s run build-handler-lambda",
+    "build-handler-lambda": "rm -rf build/handler-lambda && mkdir build/handler-lambda && pip install --platform manylinux2014_x86_64  --only-binary=:all: --target=build/handler-lambda -r code/handler-lambda/requirements.txt && cp -r code/handler-lambda/src build/handler-lambda/",
     "cdk": "cdk",
     "clean": "rm -rf ./build ./cdk.out",
     "deploy": "cdk deploy --app cdk.out",
