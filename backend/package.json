@@ -5,7 +5,8 @@
     "backend": "bin/backend.js"
   },
   "scripts": {
-    "build": "tsc && npm -s run build-handler-lambda",
+    "build": "npm -s run build-cdk && npm -s run build-handler-lambda",
+    "build-cdk": "tsc",
     "build-handler-lambda": "rm -rf build/handler-lambda && mkdir build/handler-lambda && pip install --platform manylinux2014_x86_64  --only-binary=:all: --target=build/handler-lambda -r code/handler-lambda/requirements.txt && cp -r code/handler-lambda/src build/handler-lambda/",
     "cdk": "cdk",
     "clean": "rm -rf ./build ./cdk.out",
@@ -29,8 +30,9 @@
   },
   "dependencies": {
     "@aws-cdk/aws-apigateway": "^1.198.0",
+    "@aws-cdk/aws-cloudfront": "^1.198.0",
+    "@aws-cdk/aws-cloudfront-origins": "^1.198.0",
     "@aws-cdk/aws-lambda": "^1.198.0",
-    "@aws-cdk/aws-route53": "^1.198.0",
     "@aws-cdk/aws-s3": "^1.198.0",
     "@aws-cdk/core": "1.198.0",
     "dotenv": "^16.0.3",

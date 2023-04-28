@@ -2,7 +2,13 @@ import * as cdk from '@aws-cdk/core';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { Function, Code, Runtime } from '@aws-cdk/aws-lambda';
-import { LambdaRestApi } from '@aws-cdk/aws-apigateway'
+import { LambdaRestApi } from '@aws-cdk/aws-apigateway';
+import { BlockPublicAccess, Bucket, BucketEncryption } from '@aws-cdk/aws-s3';
+import {
+  Distribution,
+  OriginAccessIdentity
+} from '@aws-cdk/aws-cloudfront';
+import { S3Origin } from '@aws-cdk/aws-cloudfront-origins';
 
 dotenv.config();
 
@@ -24,5 +30,33 @@ export class BackendStack extends cdk.Stack {
       handler: handlerLambda,
       restApiName: `${cdkStack}-api`
     });
-  }
+
+    const uiBucket = new Bucket(this, `${cdkId}UiBucket`, {
+      bucketName: `${cdkStack}-ui-bucket`,
+      encryption: BucketEncryption.S3_MANAGED,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      publicReadAccess: false,
+    });
+
+    const uiBucketOriginAccess = new OriginAccessIdentity(this, `${cdkId}UiBucketOrigin`);
+    uiBucket.grantRead(uiBucketOriginAccess);
+
+    const uiBucketOrigin = new S3Origin(
+      uiBucket,
+      {
+        originPath: "/",
+        originAccessIdentity: uiBucketOriginAccess,
+      }
+    );
+
+    const uiCloudfront = new Distribution(this, `${cdkId}UiCloudfront`, {
+      defaultBehavior: {
+        origin: uiBucketOrigin
+      },
+    });
+
+    new cdk.CfnOutput(this, `${cdkId}UiCloudfrontDns`, {
+      value: uiCloudfront.distributionDomainName
+    });
+  };
 };
