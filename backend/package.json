@@ -5,15 +5,15 @@
     "backend": "bin/backend.js"
   },
   "scripts": {
-    "init": "mkdir build",
     "build": "tsc && npm -s run build-hello-world-lambda",
-    "watch": "tsc -w",
-    "test": "jest",
+    "build-hello-world-lambda": "rm -rf build/hello-world-lambda && mkdir build/hello-world-lambda && pip install --platform manylinux2014_x86_64  --only-binary=:all: --target=build/hello-world-lambda -r code/hello-world-lambda/requirements.txt && cp -r code/hello-world-lambda/src build/hello-world-lambda/",
     "cdk": "cdk",
-    "synth": "cdk synth",
+    "clean": "rm -rf ./build ./cdk.out",
     "deploy": "cdk deploy --app cdk.out",
-    "clean": "rm -rf ./build",
-    "build-hello-world-lambda": "rm -rf build/hello-world-lambda && mkdir build/hello-world-lambda && pip install --platform manylinux2014_x86_64  --only-binary=:all: --target=build/hello-world-lambda -r code/hello-world-lambda/requirements.txt && cp -r code/hello-world-lambda/src build/hello-world-lambda/"
+    "init": "mkdir build",
+    "synth": "cdk synth",
+    "test": "jest",
+    "watch": "tsc -w"
   },
   "devDependencies": {
     "@aws-cdk/assertions": "1.198.0",
