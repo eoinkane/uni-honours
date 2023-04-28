@@ -5,13 +5,14 @@
     "backend": "bin/backend.js"
   },
   "scripts": {
-    "build": "npm -s run build-cdk && npm -s run build-handler-lambda",
+    "build": "npm -s run build-cdk && npm -s run build-auth-lambda && npm -s run build-handler-lambda",
     "build-cdk": "tsc",
-    "build-handler-lambda": "rm -rf build/handler-lambda && mkdir build/handler-lambda && pip install --platform manylinux2014_x86_64  --only-binary=:all: --target=build/handler-lambda -r code/handler-lambda/requirements.txt && cp -r code/handler-lambda/src build/handler-lambda/",
+    "build-auth-lambda": "rm -rf build/auth-lambda && mkdir -p build/auth-lambda && cp -r code/auth-lambda/src build/auth-lambda/",
+    "build-handler-lambda": "rm -rf build/handler-lambda && mkdir -p build/handler-lambda && pip install --platform manylinux2014_x86_64  --only-binary=:all: --target=build/handler-lambda -r code/handler-lambda/requirements.txt && cp -r code/handler-lambda/src build/handler-lambda/",
     "cdk": "cdk",
     "clean": "rm -rf ./build ./cdk.out",
-    "deploy": "cdk deploy --app cdk.out",
-    "init": "mkdir build",
+    "deploy": "cdk deploy --outputs-file cdk.out/outputs.json --app cdk.out",
+    "init": "mkdir -p build",
     "synth": "cdk synth",
     "test": "jest",
     "watch": "tsc -w"

@@ -2,7 +2,7 @@ import * as cdk from '@aws-cdk/core';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { Function, Code, Runtime } from '@aws-cdk/aws-lambda';
-import { LambdaRestApi } from '@aws-cdk/aws-apigateway';
+import { AuthorizationType, CfnMethod, LambdaRestApi, TokenAuthorizer } from '@aws-cdk/aws-apigateway';
 import { BlockPublicAccess, Bucket, BucketEncryption } from '@aws-cdk/aws-s3';
 import {
   Distribution,
@@ -14,6 +14,7 @@ dotenv.config();
 
 const cdkStack = process.env.CDK_STACK || 'BackendStack';
 const cdkId = process.env.CDK_ID || 'BackendStack';
+const authToken = process.env.AUTH_TOKEN || 'test-token';
 
 export class BackendStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -26,11 +27,43 @@ export class BackendStack extends cdk.Stack {
       functionName: `${cdkStack}-handler-lambda`
     });
 
-    new LambdaRestApi(this, `${cdkId}Api`, {
-      handler: handlerLambda,
-      restApiName: `${cdkStack}-api`
+    const authLambda = new Function(this, `${cdkId}AuthLambda`, {
+      functionName: `${cdkStack}-auth-lambda`,
+      runtime: Runtime.PYTHON_3_9,
+      code: Code.fromAsset(path.join(__dirname, '../build', 'auth-lambda')),
+      handler: 'src.app.handler',
+      environment: {
+        AUTH_TOKEN: authToken
+      }
     });
 
+    const authoriser = new TokenAuthorizer(this, `${cdkId}ApiGatewayAuth`,{
+      handler: authLambda,
+      identitySource:'method.request.header.Authorization',
+      resultsCacheTtl: cdk.Duration.seconds(0),
+    });
+
+    const api = new LambdaRestApi(this, `${cdkId}Api`, {
+      handler: handlerLambda,
+      restApiName: `${cdkStack}-api`,
+      defaultMethodOptions: {
+        authorizer: authoriser,
+      },
+      defaultCorsPreflightOptions: {
+        allowOrigins: ['*'],
+        allowHeaders: ['Authorization', 'RandomHeader']
+      },
+    });
+
+    api.methods
+      .filter((method) => method.httpMethod === "OPTIONS")
+      .forEach((method) => {
+        const methodCfn = method.node.defaultChild as CfnMethod;
+        methodCfn.authorizationType = AuthorizationType.NONE;
+        methodCfn.authorizerId = undefined;
+      });
+
+    
     const uiBucket = new Bucket(this, `${cdkId}UiBucket`, {
       bucketName: `${cdkStack}-ui-bucket`,
       encryption: BucketEncryption.S3_MANAGED,
