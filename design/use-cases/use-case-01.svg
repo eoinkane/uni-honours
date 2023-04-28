@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="601px" preserveAspectRatio="none" style="width:862px;height:601px;" version="1.1" viewBox="0 0 862 601" width="862px" zoomAndPan="magnify"><defs><filter height="300%" id="fa79ablv2kq6c" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[a7ed026a68d4f22967964fff6de11e57]
+cluster DORA Dashboard System--><rect fill="#FFFFFF" filter="url(#fa79ablv2kq6c)" height="431" style="stroke:#000000;stroke-width:1.5;" width="273" x="400" y="158.5"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="200" x="436.5" y="173.4951">DORA Dashboard System</text><ellipse cx="536.3083" cy="292.5617" fill="#FEFECE" filter="url(#fa79ablv2kq6c)" rx="128.3083" ry="28.0617" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="225" x="423.8083" y="295.4083">Check number of code changes</text><ellipse cx="536.2717" cy="382.5543" fill="#FEFECE" filter="url(#fa79ablv2kq6c)" rx="120.7717" ry="26.5543" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="209" x="431.7717" y="385.401">Check deployment frequency</text><ellipse cx="536.6316" cy="468.7263" fill="#FEFECE" filter="url(#fa79ablv2kq6c)" rx="109.1316" ry="24.2263" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="184" x="444.6316" y="471.573">Check change failure rate</text><ellipse cx="536.741" cy="554.6482" fill="#FEFECE" filter="url(#fa79ablv2kq6c)" rx="121.241" ry="26.6482" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="210" x="431.741" y="557.4949">Check mean time to recovery</text><ellipse cx="536.4604" cy="207.4921" fill="#FEFECE" filter="url(#fa79ablv2kq6c)" rx="95.4604" ry="21.4921" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="154" x="459.4604" y="210.3388">Record DORA metrics</text><ellipse cx="244.1608" cy="113.5322" fill="#FEFECE" filter="url(#fa79ablv2kq6c)" rx="103.1608" ry="23.0322" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="171" x="158.6608" y="116.3788">Introduce code changes</text><ellipse cx="790.5937" cy="107.7277" fill="#FEFECE" filter="url(#fa79ablv2kq6c)" rx="54.0937" ry="14.7277" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="758.0937" y="111.4753">Develop</text><ellipse cx="790.6007" cy="20.715" fill="#FEFECE" filter="url(#fa79ablv2kq6c)" rx="52.6007" ry="14.715" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57" x="759.1007" y="24.4626">Release</text><!--MD5=[4166c2533998e538f16711cc7763c23c]
+entity Dev--><ellipse cx="43" cy="351.5" fill="#FEFECE" filter="url(#fa79ablv2kq6c)" rx="8" ry="8" style="stroke:#A80036;stroke-width:1.5;"/><path d="M43,359.5 L43,386.5 M30,367.5 L56,367.5 M43,386.5 L30,401.5 M43,386.5 L56,401.5 " fill="none" filter="url(#fa79ablv2kq6c)" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="74" x="6" y="419.9951">Developer</text><!--MD5=[9c7b37a068f1cdf47f6f3f682bb1812d]
+entity DM--><ellipse cx="790.5" cy="395.5" fill="#FEFECE" filter="url(#fa79ablv2kq6c)" rx="8" ry="8" style="stroke:#A80036;stroke-width:1.5;"/><path d="M790.5,403.5 L790.5,430.5 M777.5,411.5 L803.5,411.5 M790.5,430.5 L777.5,445.5 M790.5,430.5 L803.5,445.5 " fill="none" filter="url(#fa79ablv2kq6c)" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="129" x="726" y="463.9951">Business Manager</text><!--MD5=[af6a9dca53530d5ddd8d8d86b88932dc]
+link Dev to checks-changes--><path d="M80.0765,366.4332 C89.6836,362.7372 100.1115,359.1259 110,356.5 C210.0433,329.9335 326.4135,313.3961 412.3015,303.8033 " fill="none" id="Dev-to-checks-changes" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="417.3976,303.2383,408.0115,300.2547,412.4281,303.7894,408.8934,308.206,417.3976,303.2383" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[14e97febb296d41d5566ef95b59cf420]
+reverse link checks-changes to DM--><path d="M621.1698,316.3592 C638.7363,322.5911 656.8132,329.9919 673,338.5 C697.7028,351.4842 722.7705,369.4611 743.3715,385.7839 " fill="none" id="checks-changes-backto-DM" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="616.2307,314.6326,623.4065,321.3785,620.9506,316.2826,626.0465,313.8267,616.2307,314.6326" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[19119b0b24e66ddd2fe846d8d0bd3eaf]
+link Dev to checks-deploys--><path d="M80.0927,382.5 C149.2132,382.5 300.6221,382.5 410.1309,382.5 " fill="none" id="Dev-to-checks-deploys" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="415.3135,382.5,406.3135,378.5,410.3135,382.5,406.3135,386.5,415.3135,382.5" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[ebb07ff4ebd3a0da286936e472494224]
+reverse link checks-deploys to DM--><path d="M636.6205,399.8437 C666.5905,405.0354 698.6535,410.5896 725.7125,415.277 " fill="none" id="checks-deploys-backto-DM" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="631.4414,398.9465,639.6264,404.4242,636.368,399.8001,640.9921,396.5416,631.4414,398.9465" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[86aac888f71298a2ca4c346a69d540d1]
+link Dev to checks-failures--><path d="M80.0927,388.964 C157.1016,402.384 336.2533,433.6039 445.8026,452.6946 " fill="none" id="Dev-to-checks-failures" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="450.9659,453.5944,442.7863,448.1086,446.0401,452.736,441.4128,455.9898,450.9659,453.5944" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[cf445c491ffb40e4b6379c50975a47c5]
+reverse link checks-failures to DM--><path d="M629.0362,453.1987 C661.1405,447.8902 696.4235,442.056 725.7967,437.199 " fill="none" id="checks-failures-backto-DM" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="623.9124,454.046,633.4444,456.5241,628.8454,453.2303,632.1392,448.6313,623.9124,454.046" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[851a9460e1fed4b9a4bc4a1838d908c3]
+link Dev to checks-recovery-time--><path d="M80.408,411.3154 C96.0104,422.2807 114.7306,434.135 133,442.5 C232.6456,488.1247 354.8515,518.8528 438.496,536.4078 " fill="none" id="Dev-to-checks-recovery-time" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="443.4482,537.4412,435.4551,531.687,438.5536,536.4198,433.8209,539.5183,443.4482,537.4412" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[0c976c8eb31c96eb2fa467f31678c131]
+reverse link checks-recovery-time to DM--><path d="M619.0773,532.4156 C637.2655,526.3145 656.1263,518.9916 673,510.5 C696.6315,498.6076 720.741,482.2511 740.921,467.1296 " fill="none" id="checks-recovery-time-backto-DM" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="613.9673,534.104,623.7678,535.0784,618.7148,532.5353,621.2579,527.4823,613.9673,534.104" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[edef8c7dfa3fd5fe0e4ea4c6b5c51fbb]
+link Dev to make-changes--><path d="M66.9881,341.9592 C79.2791,321.8774 94.8236,297.4966 110,276.5 C146.044,226.6332 192.4726,172.0366 220.1441,140.3819 " fill="none" id="Dev-to-make-changes" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="223.7552,136.2595,214.8161,140.3939,220.4607,140.0206,220.8339,145.6651,223.7552,136.2595" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[7ed42b16cd895b507dbfa938eb3b4b5d]
+reverse link make-changes to Develop--><path d="M352.2404,112.3116 C468.1485,111.0391 647.3837,109.0713 736.4441,108.0935 " fill="none" id="make-changes-backto-Develop" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#A80036" points="347.1135,112.3679,356.157,116.2687,352.1132,112.3129,356.069,108.2691,347.1135,112.3679" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="68" x="502.5" y="105.5669">«extends»</text><!--MD5=[59021b056df45921679c85617892e4ac]
+reverse link make-changes to Release--><path d="M327.4718,97.6426 C350.9165,93.2812 376.4398,88.6201 400,84.5 C524.5177,62.725 671.7741,39.1891 744.7563,27.6725 " fill="none" id="make-changes-backto-Release" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#A80036" points="322.502,98.5684,332.0823,100.8525,327.4174,97.6527,330.6172,92.9878,322.502,98.5684" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="68" x="502.5" y="35.5669">«extends»</text><!--MD5=[170ec9a43a7bb2ce539af5c5ac46d5dc]
+link make-changes to record--><path d="M302.8399,132.4092 C353.263,148.6136 425.582,171.8546 476.3732,188.1772 " fill="none" id="make-changes-to-record" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="481.2198,189.7347,473.8753,183.1728,476.4596,188.2049,471.4276,190.7892,481.2198,189.7347" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[83f5fe83c22cea0c139f75f6cb5607c0]
+@startuml
+'https://plantuml.com/use-case-diagram
+
+:Developer: as Dev
+:Business Manager: as DM
+
+rectangle "DORA Dashboard System" {
+    left to right direction
+
+    (Check number of code changes) as (checks-changes)
+    Dev - -> (checks-changes)
+    (checks-changes) <- - DM
+
+    (Check deployment frequency) as (checks-deploys)
+    Dev - -> (checks-deploys)
+    (checks-deploys) <- - DM
+
+    (Check change failure rate) as (checks-failures)
+    Dev - -> (checks-failures)
+    (checks-failures) <- - DM
+
+    (Check mean time to recovery) as (checks-recovery-time)
+    Dev - -> (checks-recovery-time)
+    (checks-recovery-time) <- - DM
+
+    (Record DORA metrics) as (record)
+}
+
+together {
+    (Introduce code changes) as (make-changes)
+    Dev - -> (make-changes)
+
+    (make-changes) <.. (Develop) : <<extends>>
+    (make-changes) <.. (Release) : <<extends>>
+
+    (make-changes) - -> (record)
+}
+@enduml
+
+@startuml
+
+:Developer: as Dev
+:Business Manager: as DM
+
+rectangle "DORA Dashboard System" {
+    left to right direction
+
+    (Check number of code changes) as (checks-changes)
+    Dev - -> (checks-changes)
+    (checks-changes) <- - DM
+
+    (Check deployment frequency) as (checks-deploys)
+    Dev - -> (checks-deploys)
+    (checks-deploys) <- - DM
+
+    (Check change failure rate) as (checks-failures)
+    Dev - -> (checks-failures)
+    (checks-failures) <- - DM
+
+    (Check mean time to recovery) as (checks-recovery-time)
+    Dev - -> (checks-recovery-time)
+    (checks-recovery-time) <- - DM
+
+    (Record DORA metrics) as (record)
+}
+
+together {
+    (Introduce code changes) as (make-changes)
+    Dev - -> (make-changes)
+
+    (make-changes) <.. (Develop) : <<extends>>
+    (make-changes) <.. (Release) : <<extends>>
+
+    (make-changes) - -> (record)
+}
+@enduml
+
+PlantUML version 1.2021.01(Tue Feb 02 07:55:08 GMT 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: null
+--></g></svg>
