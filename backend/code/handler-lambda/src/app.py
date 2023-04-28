@@ -18,6 +18,9 @@ app = APIGatewayRestResolver(cors=empty_cors_config)
 @app.get('/jenkins-test')
 def get_jenkins():
     event: dict = app.current_event
+    logger.info('making request to jenkins', {
+        "url": f'{JENKINS_API_URL}/api/json'
+    })
     response = requests.get(f'{JENKINS_API_URL}/api/json')
 
     if response.ok:
@@ -37,6 +40,30 @@ def get_jenkins():
         'message': f'request to jenkins unsuccessful. status code: {response.status_code}',
         'request_path': event['path']
     }
+
+@app.get('/json-test')
+def get_json_test():
+    event: dict = app.current_event
+    response = requests.get('https://jsonplaceholder.typicode.com/todos/1')
+
+    if response.ok:
+        try:
+            return {
+                'data': response.json(),
+                'message': f'request to json placeholder successful status code: {response.status_code}',
+                'request_path': event['path']
+            }
+        except JSONDecodeError as err:
+            logger.error(err)
+            return {
+                'message': f'request to json placeholder unsuccessful. status code: {response.status_code}',
+                'request_path': event['path']
+            }
+    return {
+        'message': f'request to json placeholder unsuccessful. status code: {response.status_code}',
+        'request_path': event['path']
+    }
+
 
 @app.get(".+")
 def get_handler():

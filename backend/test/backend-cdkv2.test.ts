@@ -1,13 +1,13 @@
-// import { Template } from '@aws-cdk/assertions';
-// import * as cdk from '@aws-cdk/core';
-// import * as Backend from '../lib/backend-stack';
+// import * as cdk from 'aws-cdk-lib';
+// import { Template } from 'aws-cdk-lib/assertions';
+// import * as BackendCdkv2 from '../lib/backend-cdkv2-stack';
 
 // example test. To run these tests, uncomment this file along with the
-// example resource in lib/backend-stack.ts
+// example resource in lib/backend-cdkv2-stack.ts
 test('SQS Queue Created', () => {
 //   const app = new cdk.App();
 //     // WHEN
-//   const stack = new Backend.BackendStack(app, 'MyTestStack');
+//   const stack = new BackendCdkv2.BackendCdkv2Stack(app, 'MyTestStack');
 //     // THEN
 //   const template = Template.fromStack(stack);
 

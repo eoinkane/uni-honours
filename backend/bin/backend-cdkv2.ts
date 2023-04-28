@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
+import * as cdk from 'aws-cdk-lib';
 import * as dotenv from 'dotenv';
-import * as cdk from '@aws-cdk/core';
-import { BackendStack } from '../lib/backend-stack';
+import { BackendCdkv2Stack } from '../lib/backend-cdkv2-stack';
 
 dotenv.config();
 
-const cdkStack = process.env.CDK_STACK || 'BackendStack';
+const cdkStack = process.env.CDK_STACK || 'BackendCdk2Stack';
 
 const app = new cdk.App();
-new BackendStack(app, cdkStack, {
+new BackendCdkv2Stack(app, cdkStack, {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
