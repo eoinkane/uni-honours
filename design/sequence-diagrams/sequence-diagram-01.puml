@@ -1,0 +1,27 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title DORA Dashboard System
+
+participant "DORA Dashboard System" as DDS
+participant "Source Control Management System" as SCM
+participant "Issue Tracking System" as ISM
+participant "Continuous Integration/Deployment Server" as CICDS
+
+activate DDS
+
+DDS->SCM: Retrieve Information about Code Changes
+activate SCM
+SCM->DDS: Return Information about Code Changes
+deactivate SCM
+
+DDS->ISM: Retrieve Information about Work Items
+activate ISM
+ISM->DDS: Return Information about Work Items
+deactivate ISM
+
+DDS->CICDS: Retrieve Information about Related CI/CD Builds
+activate CICDS
+CICDS->DDS: Return Information about Related CI/CD Builds
+deactivate CICDS
+@enduml
