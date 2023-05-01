@@ -1,15 +1,21 @@
 from __future__ import annotations
+from hashlib import sha1
 import os
 import json
 from typing_extensions import TypedDict, NotRequired
 from datetime import datetime, timezone
 import requests
-from requests import Response
+from requests import Response, status_codes
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import JSONDecodeError, RequestException
 from enum import Enum
 from aws_lambda_powertools import Logger
-from aws_lambda_powertools.event_handler import APIGatewayRestResolver, CORSConfig
+from aws_lambda_powertools.event_handler import (
+    APIGatewayRestResolver,
+    CORSConfig,
+    Response,
+    content_types,
+)
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
@@ -19,9 +25,11 @@ BITBUCKET_API_URL = os.getenv("BITBUCKET_API_URL", "url")
 BITBUCKET_API_USER_NAME = os.getenv("BITBUCKET_API_USER_NAME", "username")
 BITBUCKET_API_APP_PASSWORD = os.getenv("BITBUCKET_API_APP_PASSWORD", "password")
 
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+
 bitbucket_auth = HTTPBasicAuth(BITBUCKET_API_USER_NAME, BITBUCKET_API_APP_PASSWORD)
 
-logger = Logger()
+logger = Logger(level=LOG_LEVEL)
 empty_cors_config = CORSConfig(allow_headers=["RandomHeader"])
 app = APIGatewayRestResolver(cors=empty_cors_config)
 
@@ -34,6 +42,7 @@ class APIS(Enum):
 class RequestResponse(TypedDict):
     success: bool
     statusCode: NotRequired[int | None]
+    message: NotRequired[str | None]
     data: NotRequired[dict | None]
 
 
@@ -60,7 +69,11 @@ def make_request(api: APIS, path: str) -> RequestResponse:
             }
             return return_value
         else:
-            return_value = {"statusCode": response.status_code, "success": False}
+            return_value = {
+                "statusCode": response.status_code,
+                "message": response.text,
+                "success": False,
+            }
             return return_value
     except JSONDecodeError as err:
         logger.error(err)
@@ -72,16 +85,33 @@ def jenkins_build_datetime(jenkins_build) -> datetime:
     return datetime.fromtimestamp(jenkins_build["timestamp"] / 1000.0, timezone.utc)
 
 
-def calculate_deployment_frequency(jenkins_api_response: dict):
+class DeploymentFrequencyData(TypedDict):
+    numberOfDeployments: str
+    latestBuildDatetime: str
+    firstBuildDatetime: str
+    daysBetweenLatestAndFirstBuild: int
+
+
+class DeploymentFrequencyResult(TypedDict):
+    success: bool
+    message: NotRequired[str | None]
+    data: NotRequired[DeploymentFrequencyData | None]
+
+
+def calculate_deployment_frequency(
+    jenkins_api_response: dict,
+) -> DeploymentFrequencyResult:
+    return_value: RequestResponse
     try:
         main_jenkins_job_list = [
             job for job in jenkins_api_response["jobs"] if job["name"] == "main"
         ]
         if len(main_jenkins_job_list) > 1:
-            return {
+            return_value = {
                 "success": False,
                 "message": "unexpected number of sub jobs with name main for job in jenkins",
             }
+            return return_value
         main_jenkins_job = main_jenkins_job_list[0]
         successful_builds_from_jenkins_job = [
             build
@@ -103,11 +133,12 @@ def calculate_deployment_frequency(jenkins_api_response: dict):
                 time_delta_between_latest_and_first_build.days
             )
         else:
-            return {
+            return_value = {
                 "success": False,
                 "message": "unexpected duration between latest and first build of the job in jenkins",
             }
-        return {
+            return return_value
+        return_value = {
             "success": True,
             "data": {
                 "numberOfDeployments": number_of_deployments,
@@ -117,38 +148,67 @@ def calculate_deployment_frequency(jenkins_api_response: dict):
             },
             "message": "deployment frequency successfully calculated",
         }
-
-    except KeyError:
-        return {"success": False}
+        return return_value
+    except KeyError as err:
+        return_value = {
+            "success": False,
+            "message": f"Key {str(err)} cannot be found in the dict",
+        }
+        return return_value
 
 
 @app.get("/deployment-frequency")
 def get_jenkins():
     event: dict = app.current_event
 
-    response = make_request(
-        APIS.JENKINS,
-        f"{JENKINS_JOB_NAME}/api/json?tree=jobs[name,color,builds[url,result,timestamp]]",
+    request_url = f"{JENKINS_JOB_NAME}/api/json?tree=jobs[name,color,builds[url,result,timestamp]]"
+
+    logger.info(
+        "making jenkins request",
+        {"url": request_url},
     )
 
-    logger.info("jenkins request made", {"response": response})
+    response = make_request(APIS.JENKINS, request_url)
 
     if response["success"]:
+        logger.info("jenkins request successfully made", {"response": response})
         deployment_frequency = calculate_deployment_frequency(response["data"])
-        logger.info(
-            "deployment frequency calculated",
-            {"deploymentFrequency": deployment_frequency["data"]},
-        )
-        return {
-            "data": deployment_frequency["data"],
-            "message": deployment_frequency["message"],
-            "request_path": event["path"],
-        }
+        if deployment_frequency["success"]:
+            logger.info(
+                "deployment frequency calculated",
+                {"deploymentFrequency": deployment_frequency["data"]},
+            )
+            return {
+                "data": deployment_frequency["data"],
+                "message": deployment_frequency["message"],
+                "request_path": event["path"],
+            }
+        else:
+            logger.info("failed to calculate deployment frequency")
+            return Response(
+                status_code=status_codes.codes.SERVER_ERROR,
+                content_type=content_types.APPLICATION_JSON,
+                body={
+                    "message": deployment_frequency["message"]
+                    if "message" in deployment_frequency
+                    and deployment_frequency["message"]
+                    else "Error: a problem occured",
+                    "request_path": event["path"],
+                },
+            )
     else:
-        return {
-            "message": f'request to jenkins unsuccessful. status code: {response["statusCode"]}',
-            "request_path": event["path"],
-        }
+        logger.info("jenkins request errored out")
+        logger.info(response)
+        return Response(
+            status_code=status_codes.codes.SERVER_ERROR,
+            content_type=content_types.APPLICATION_JSON,
+            body={
+                "message": response["message"]
+                if "message" in response and response["message"]
+                else "Error: a problem occured",
+                "request_path": event["path"],
+            },
+        )
 
 
 @app.get("/json-test")
@@ -172,6 +232,15 @@ def get_json_test():
     return {
         "message": f"request to json placeholder unsuccessful. status code: {response.status_code}",
         "request_path": event["path"],
+    }
+
+
+@app.get("/echo")
+def get_echo():
+    return {
+        "hash": sha1(
+            json.dumps(app.current_event.raw_event, sort_keys=True).encode("utf-8")
+        ).hexdigest()
     }
 
 

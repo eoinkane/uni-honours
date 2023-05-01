@@ -1,53 +1,40 @@
 {
-  "body": null,
-  "headers": {
-    "Accept-Encoding": "gzip, deflate",
-    "Connection": "close",
-    "Host": "localhost:3908",
-    "User-Agent": "vscode-restclient",
-    "X-Forwarded-Port": "3908",
-    "X-Forwarded-Proto": "http"
-  },
+  "resource": "/{proxy+}",
+  "path": "/<>",
   "httpMethod": "GET",
-  "isBase64Encoded": false,
-  "multiValueHeaders": {
-    "Accept-Encoding": ["gzip, deflate"],
-    "Connection": ["close"],
-    "Host": ["localhost:3908"],
-    "User-Agent": ["vscode-restclient"],
-    "X-Forwarded-Port": ["3908"],
-    "X-Forwarded-Proto": ["http"]
+  "headers": {
+    "Accept": "*/*",
+    "Accept-Encoding": "gzip, deflate, br",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
   },
-  "multiValueQueryStringParameters": null,
+  "multiValueHeaders": {
+    "Accept": [
+      "*/*"
+    ],
+    "Accept-Encoding": [
+      "gzip, deflate, br"
+    ],
+    "X-Forwarded-Port": [
+      "443"
+    ],
+    "X-Forwarded-Proto": [
+      "https"
+    ]
+  },
   "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "pathParameters": {
+    "proxy": "<>"
+  },
+  "stageVariables": null,
   "requestContext": {
-    "accountId": "123456789012",
-    "apiId": "1234567890",
-    "domainName": "localhost:3908",
-    "extendedRequestId": null,
-    "httpMethod": "GET",
-    "identity": {
-      "accountId": null,
-      "apiKey": null,
-      "caller": null,
-      "cognitoAuthenticationProvider": null,
-      "cognitoAuthenticationType": null,
-      "cognitoIdentityPoolId": null,
-      "sourceIp": "127.0.0.1",
-      "user": null,
-      "userAgent": "Custom User Agent String",
-      "userArn": null
-    },
-    "path": "/{proxy+}",
-    "protocol": "HTTP/1.1",
-    "requestId": "90864886-467f-49a9-89b4-5fd66bb6fc17",
-    "requestTime": "14/Apr/2023:16:27:20 +0000",
-    "requestTimeEpoch": 1681489640,
-    "resourceId": "123456",
     "resourcePath": "/{proxy+}",
+    "httpMethod": "GET",
+    "path": "<>",
+    "protocol": "HTTP/1.1",
     "stage": "prod"
   },
-  "resource": "/{proxy+}",
-  "stageVariables": null,
-  "version": "1.0"
+  "body": null,
+  "isBase64Encoded": false
 }
