@@ -13,6 +13,7 @@
     "clean": "rm -rf ./build ./cdk.out",
     "deploy": "cdk deploy --outputs-file cdk.out/outputs.json --app cdk.out",
     "init": "mkdir -p build",
+    "quick-build": "rm -rf build/handler_lambda/src && cp -r code/handler_lambda/src build/handler_lambda && npm -s run synth",
     "synth": "find ./cdk.out -name 'asset.*' -print0 | xargs -0 rm -rf && cdk synth",
     "test": "jest",
     "watch": "tsc -w"
