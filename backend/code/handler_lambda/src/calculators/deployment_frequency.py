@@ -21,19 +21,20 @@ def calculate_deployment_frequency(
 ) -> DeploymentFrequencyResult:
     return_value: DeploymentFrequencyResult
     try:
-        main_jenkins_job_list = [
-            job for job in jenkins_api_response["jobs"] if job["name"] == "main"
-        ]
-        if len(main_jenkins_job_list) > 1:
-            return_value = {
-                "success": False,
-                "message": "unexpected number of sub jobs with name main for job in jenkins",
-            }
-            return return_value
-        main_jenkins_job = main_jenkins_job_list[0]
+        # this commented out section is for multibranch pipelines
+        # main_jenkins_job_list = [
+        #     job for job in jenkins_api_response["jobs"] if job["name"] == "main"
+        # ]
+        # if len(main_jenkins_job_list) > 1:
+        #     return_value = {
+        #         "success": False,
+        #         "message": "unexpected number of sub jobs with name main for job in jenkins",
+        #     }
+        #     return return_value
+        # main_jenkins_job = main_jenkins_job_list[0]
         successful_builds_from_jenkins_job = [
             build
-            for build in main_jenkins_job["builds"]
+            for build in jenkins_api_response["builds"]
             if build["result"] == "SUCCESS"
         ]
         number_of_deployments = len(successful_builds_from_jenkins_job)
