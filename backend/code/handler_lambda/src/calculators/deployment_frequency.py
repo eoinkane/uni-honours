@@ -3,6 +3,7 @@ from typing_extensions import TypedDict, NotRequired
 
 from ..helpers.datetime import jenkins_build_datetime
 
+
 class DeploymentFrequencyData(TypedDict):
     numberOfDeployments: str
     latestBuildDatetime: str

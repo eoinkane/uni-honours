@@ -18,6 +18,7 @@ bitbucket_auth = HTTPBasicAuth(BITBUCKET_API_USER_NAME, BITBUCKET_API_APP_PASSWO
 
 logger = Logger(child=True)
 
+
 class APIS(Enum):
     JENKINS = JENKINS_API_URL
     BITBUCKET = BITBUCKET_API_URL

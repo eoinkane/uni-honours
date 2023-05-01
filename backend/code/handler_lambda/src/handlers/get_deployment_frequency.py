@@ -13,49 +13,18 @@ logger = Logger(child=True)
 
 
 def get_deployment_frequency_handler(event: APIGatewayProxyEvent):
-
     # for multi branch pipelines
     # /api/json?tree=jobs[name,color,builds[url,result,timestamp]]
     # for single job pipelines
     # /api/json?tree=builds[url,result,timestamp]
     request_url = f"{JENKINS_JOB_NAME}/api/json?tree=builds[url,result,timestamp]"
 
-    logger.info(
-        "making jenkins request",
-        {"url": request_url},
-    )
+    logger.info("making jenkins request", url=request_url)
 
     response = make_request(APIS.JENKINS, request_url)
 
-    if response["success"]:
-        logger.info("jenkins request successfully made", {"response": response})
-        deployment_frequency = calculate_deployment_frequency(response["data"])
-        if deployment_frequency["success"]:
-            logger.info(
-                "deployment frequency calculated",
-                {"deploymentFrequency": deployment_frequency["data"]},
-            )
-            return {
-                "data": deployment_frequency["data"],
-                "message": deployment_frequency["message"],
-                "request_path": event["path"],
-            }
-        else:
-            logger.info("failed to calculate deployment frequency")
-            return Response(
-                status_code=status_codes.codes.SERVER_ERROR,
-                content_type=content_types.APPLICATION_JSON,
-                body={
-                    "message": deployment_frequency["message"]
-                    if "message" in deployment_frequency
-                    and deployment_frequency["message"]
-                    else "Error: a problem occured",
-                    "request_path": event["path"],
-                },
-            )
-    else:
-        logger.info("jenkins request errored out")
-        logger.info(response)
+    if not response["success"]:
+        logger.info("jenkins request errored out", response=response)
         return Response(
             status_code=status_codes.codes.SERVER_ERROR,
             content_type=content_types.APPLICATION_JSON,
@@ -66,3 +35,28 @@ def get_deployment_frequency_handler(event: APIGatewayProxyEvent):
                 "request_path": event["path"],
             },
         )
+
+    logger.info("jenkins request successfully made", response=response)
+    deployment_frequency = calculate_deployment_frequency(response["data"])
+    if not deployment_frequency["success"]:
+        logger.info("failed to calculate deployment frequency", deploymentFrequency=deployment_frequency)
+        return Response(
+            status_code=status_codes.codes.SERVER_ERROR,
+            content_type=content_types.APPLICATION_JSON,
+            body={
+                "message": deployment_frequency["message"]
+                if "message" in deployment_frequency and deployment_frequency["message"]
+                else "Error: a problem occured",
+                "request_path": event["path"],
+            },
+        )
+
+    logger.info(
+        "deployment frequency calculated",
+        deploymentFrequency=deployment_frequency["data"],
+    )
+    return {
+        "data": deployment_frequency["data"],
+        "message": deployment_frequency["message"],
+        "request_path": event["path"],
+    }
