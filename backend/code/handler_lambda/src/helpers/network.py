@@ -2,6 +2,7 @@ from __future__ import annotations
 import os
 from typing_extensions import TypedDict, NotRequired
 from enum import Enum
+import xmltodict
 import requests
 from requests import Response, status_codes
 from requests.auth import HTTPBasicAuth
@@ -22,6 +23,8 @@ logger = Logger(child=True)
 class APIS(Enum):
     JENKINS = JENKINS_API_URL
     BITBUCKET = BITBUCKET_API_URL
+    DIRECT_BITBUCKET = "DIRECT_BITBUCKET"
+    DIRECT_JENKINS = "DIRECT_JENKINS"
 
 
 class RequestResponse(TypedDict):
@@ -33,24 +36,36 @@ class RequestResponse(TypedDict):
 
 def make_request(api: APIS, path: str) -> RequestResponse:
     return_value: RequestResponse
-    if path[0] != "/":
+    if (api != APIS.DIRECT_BITBUCKET and api != APIS.DIRECT_JENKINS ) and path[0] != "/":
+        logger.info(f"API: {api} path {path}")
         raise ValueError("invalid path")
     try:
         if api == APIS.JENKINS:
             response = requests.get(f"{JENKINS_API_URL}{path}")
+        elif api == APIS.DIRECT_JENKINS:
+            response = requests.get(path)
         elif api == APIS.BITBUCKET:
             response = requests.get(f"{BITBUCKET_API_URL}{path}", auth=bitbucket_auth)
+        elif api == APIS.DIRECT_BITBUCKET:
+            response = requests.get(path, auth=bitbucket_auth)
     except RequestException as err:
         logger.error(err)
         return_value = {"success": False}
         return return_value
 
     try:
-        if response.ok:
+        if response.ok and 'Content-Type' in response.headers and 'application/json' in response.headers['Content-Type']:
             return_value = {
                 "statusCode": response.status_code,
                 "success": True,
                 "data": response.json(),
+            }
+            return return_value
+        elif response.ok and 'Content-Type' in response.headers and 'application/xml' in response.headers['Content-Type']:
+            return_value = {
+                "statusCode": response.status_code,
+                "success": True,
+                "data": xmltodict.parse(response.content),
             }
             return return_value
         else:
