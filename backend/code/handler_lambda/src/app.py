@@ -13,6 +13,7 @@ from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from .handlers.get_deployment_frequency import get_deployment_frequency_handler
+from .handlers.get_lead_time_for_changes import get_lead_time_for_changes_handler
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
@@ -25,6 +26,11 @@ app = APIGatewayRestResolver(cors=empty_cors_config)
 def get_deployment_frequency_route():
     event: dict = app.current_event
     return get_deployment_frequency_handler(event)
+
+@app.get("/lead-time-for-changes")
+def get_lead_time_for_changes():
+    event: dict = app.current_event
+    return get_lead_time_for_changes_handler(event)
 
 
 @app.get("/json-test")

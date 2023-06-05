@@ -28,6 +28,12 @@ const awsSubnetName = process.env.AWS_SUBNET_NAME || 'subnet-name';
 const awsSubnetIds = (process.env.AWS_SUBNET_IDS || 'subnet-id1,subnet-id2').split(',');
 const awsAvailabilityZones = (process.env.AWS_AVAILABILITY_ZONES || 'zone-1,zone2').split(',');
 
+const jenkinStJobName = process.env.JENKINS_ST_JOB_NAME || 'value';
+const jenkinsAtJobName = process.env.JENKINS_AT_JOB_NAME || 'value';
+const jenkinsPrJobName = process.env.JENKINS_PR_JOB_NAME || 'value';
+const bitbucketWorkspace = process.env.BITBUCKET_WORKSPACE || 'value';
+const bitbucketRepoSlug = process.env.BITBUCKET_REPO_SLUG || 'value';
+
 export class BackendStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -49,7 +55,12 @@ export class BackendStack extends cdk.Stack {
         JENKINS_JOB_NAME: jenkinsJobName,
         BITBUCKET_API_URL: bitbucketApiUrl,
         BITBUCKET_API_USER_NAME: bitbucketApiUserName,
-        BITBUCKET_API_APP_PASSWORD: bitbucketApiAppPassword
+        BITBUCKET_API_APP_PASSWORD: bitbucketApiAppPassword,
+        JENKINS_ST_JOB_NAME: jenkinStJobName,
+        JENKINS_AT_JOB_NAME: jenkinsAtJobName,
+        JENKINS_PR_JOB_NAME: jenkinsPrJobName,
+        BITBUCKET_WORKSPACE: bitbucketWorkspace,
+        BITBUCKET_REPO_SLUG: bitbucketRepoSlug
       },
       vpc: awsVpc,
       vpcSubnets: { subnetGroupName: awsSubnetName },
