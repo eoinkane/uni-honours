@@ -13,6 +13,7 @@ BITBUCKET_REPO_SLUG = os.getenv("BITBUCKET_REPO_SLUG", "repo")
 JENKINS_AT_JOB_NAME = os.getenv("JENKINS_AT_JOB_NAME", "job")
 JENKINS_PR_JOB_NAME = os.getenv("JENKINS_PR_JOB_NAME", "job")
 
+
 class SingularChangeLeadTimeData(TypedDict):
     # numberOfDeployments: str
     # latestBuildDatetime: str
@@ -382,15 +383,18 @@ def calculate_lead_time_for_changes(pull_request) -> SingularChangeLeadTimeResul
         {"timestamp": first_jenkins_pr_build_of_current_pull_request_finish_timestamp}
     )
 
-    logger.info(
+    duration = (
         first_jenkins_pr_build_of_current_pull_request_finish_datetime
         - first_jenkins_build_of_current_pull_request_datetime
     )
+
+    logger.info(duration)
 
     return SingularChangeLeadTimeResult(
         {
             "success": True,
             "data": {
+                "durationInSeconds": duration.total_seconds(),
                 "startTime": first_jenkins_build_of_current_pull_request_datetime.isoformat(),
                 "finishTime": first_jenkins_pr_build_of_current_pull_request_finish_datetime.isoformat(),
             },
