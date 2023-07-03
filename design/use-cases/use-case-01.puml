@@ -3,6 +3,7 @@
 
 :Developer: as Dev
 :Business Manager: as DM
+:Developer: as Dev2
 
 rectangle "DORA Dashboard System" {
     left to right direction
@@ -30,8 +31,11 @@ together {
     (Introduce code changes) as (make-changes)
     Dev --> (make-changes)
 
-    (make-changes) <.. (Develop) : <<extends>>
-    (make-changes) <.. (Release) : <<extends>>
+    (Develops) <-- Dev2
+    (Releases) <-- Dev2
+
+    (make-changes) <.. (Develops) : <<extends>>
+    (make-changes) <.. (Releases) : <<extends>>
 
     (make-changes) --> (record)
 }
