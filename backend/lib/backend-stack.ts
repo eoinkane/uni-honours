@@ -1,16 +1,17 @@
-import * as cdk from '@aws-cdk/core';
+import { Stack, StackProps, Duration, CfnOutput } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
-import { Function, Code, Runtime } from '@aws-cdk/aws-lambda';
-import { AuthorizationType, CfnMethod, LambdaRestApi, TokenAuthorizer } from '@aws-cdk/aws-apigateway';
-import { BlockPublicAccess, Bucket, BucketEncryption } from '@aws-cdk/aws-s3';
+import { Function, Code, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { AuthorizationType, CfnMethod, LambdaRestApi, TokenAuthorizer } from 'aws-cdk-lib/aws-apigateway';
+import { BlockPublicAccess, Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3';
 import {
   CachePolicy,
   Distribution,
   OriginAccessIdentity
-} from '@aws-cdk/aws-cloudfront';
-import { S3Origin, S3OriginProps } from '@aws-cdk/aws-cloudfront-origins';
-import { Vpc } from '@aws-cdk/aws-ec2';
+} from 'aws-cdk-lib/aws-cloudfront';
+import { S3Origin, S3OriginProps } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { Vpc } from 'aws-cdk-lib/aws-ec2';
 
 
 dotenv.config();
@@ -34,8 +35,8 @@ const jenkinsPrJobName = process.env.JENKINS_PR_JOB_NAME || 'value';
 const bitbucketWorkspace = process.env.BITBUCKET_WORKSPACE || 'value';
 const bitbucketRepoSlug = process.env.BITBUCKET_REPO_SLUG || 'value';
 
-export class BackendStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+export class BackendStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const awsVpc = Vpc.fromVpcAttributes(this, `${cdkId}AwsSubnet`, {
@@ -64,7 +65,7 @@ export class BackendStack extends cdk.Stack {
       },
       vpc: awsVpc,
       vpcSubnets: { subnetGroupName: awsSubnetName },
-      timeout: cdk.Duration.minutes(1)
+      timeout: Duration.minutes(1)
     });
 
     const authLambda = new Function(this, `${cdkId}AuthLambda`, {
@@ -80,7 +81,7 @@ export class BackendStack extends cdk.Stack {
     const authoriser = new TokenAuthorizer(this, `${cdkId}ApiGatewayAuth`,{
       handler: authLambda,
       identitySource:'method.request.header.Authorization',
-      resultsCacheTtl: cdk.Duration.seconds(0),
+      resultsCacheTtl: Duration.seconds(0),
     });
 
     const api = new LambdaRestApi(this, `${cdkId}Api`, {
@@ -131,7 +132,7 @@ export class BackendStack extends cdk.Stack {
         },
       });
   
-      new cdk.CfnOutput(this, `${cdkId}UiCloudfrontDns`, {
+      new CfnOutput(this, `${cdkId}UiCloudfrontDns`, {
         value: uiCloudfront.distributionDomainName
       });
   }
