@@ -6,12 +6,14 @@ from aws_lambda_powertools.event_handler import Response, content_types
 from aws_lambda_powertools.event_handler.api_gateway import APIGatewayProxyEvent
 
 from ..calculators.lead_time_for_changes import calculate_lead_time_for_changes
+from ..calculators.shared import FiveHundredError, JenkinsHistoryLimit
 from ..helpers.network import make_request, APIS
 
 BITBUCKET_WORKSPACE = os.getenv("BITBUCKET_WORKSPACE", "workspace")
 BITBUCKET_REPO_SLUG = os.getenv("BITBUCKET_REPO_SLUG", "repo")
 
 logger = Logger(child=True)
+
 
 def get_lead_time_for_changes_handler(event: APIGatewayProxyEvent):
     pull_requests_request_url = f"""/repositories/{BITBUCKET_WORKSPACE}/{BITBUCKET_REPO_SLUG}/pullrequests?state=MERGED&fields=values.id,values.title,values.state,values.merge_commit.hash,values.merge_commit.date,values.merge_commit.links.self.href,values.merge_commit.links.statuses.href,values.merge_commit.parents,values.merge_commit.parents.hash,values.merge_commit.parents.date,values.merge_commit.parents.links.self.href,values.merge_commit.parents.links.html.href,values.merge_commit.parents.links.statuses.href"""
@@ -26,17 +28,7 @@ def get_lead_time_for_changes_handler(event: APIGatewayProxyEvent):
             url=pull_requests_request_url,
             response=bitbucket_pull_requests_response,
         )
-        return Response(
-            status_code=status_codes.codes.SERVER_ERROR,
-            content_type=content_types.APPLICATION_JSON,
-            body={
-                "message": bitbucket_pull_requests_response["message"]
-                if "message" in bitbucket_pull_requests_response
-                and bitbucket_pull_requests_response["message"]
-                else "Error: a problem occured",
-                "request_path": "/path",
-            },
-        )
+        raise FiveHundredError(response=bitbucket_pull_requests_response)
 
     logger.debug(
         "successfully got the pull requests response",
@@ -44,32 +36,23 @@ def get_lead_time_for_changes_handler(event: APIGatewayProxyEvent):
     )
 
     try:
-        most_recent_pull_request = bitbucket_pull_requests_response["data"]["values"][0]
+        pull_requests = bitbucket_pull_requests_response["data"]["values"]
     except KeyError as err:
-        return Response(
-            status_code=status_codes.codes.SERVER_ERROR,
-            content_type=content_types.APPLICATION_JSON,
-            body={
-                "message": f"Key {str(err)} cannot be found in the dict",
-            },
-        )
+        raise FiveHundredError(message=f"Key {str(err)} cannot be found in the dict")
 
-    lead_time_changes = calculate_lead_time_for_changes(most_recent_pull_request)
+    lead_time_for_changes = []
+    for pull_request in pull_requests:
+        try:
+            lead_time_for_changes.append(calculate_lead_time_for_changes(pull_request))
+        except JenkinsHistoryLimit:
+            break
 
-    if not lead_time_changes["success"]:
-        return Response(
-            status_code=status_codes.codes.SERVER_ERROR,
-            content_type=content_types.APPLICATION_JSON,
-            body={
-                "message": lead_time_changes["message"]
-                if "message" in lead_time_changes and lead_time_changes["message"]
-                else "Error: a problem occured",
-                "request_path": "/path",
-            },
-        )
+    average_lead_time_for_changes = sum(lead_time_for_changes) / len(
+        lead_time_for_changes
+    )
 
     return Response(
         status_code=status_codes.codes.OK,
         content_type=content_types.APPLICATION_JSON,
-        body=json.dumps(lead_time_changes["data"]),
+        body=json.dumps({"meanDurationInSeconds": average_lead_time_for_changes}),
     )
