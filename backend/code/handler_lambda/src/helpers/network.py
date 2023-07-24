@@ -10,7 +10,6 @@ from requests.exceptions import JSONDecodeError, RequestException
 from aws_lambda_powertools import Logger
 
 JENKINS_API_URL = os.getenv("JENKINS_API_URL", "url")
-JENKINS_JOB_NAME = os.getenv("JENKINS_JOB_NAME", "job")
 BITBUCKET_API_URL = os.getenv("BITBUCKET_API_URL", "url")
 BITBUCKET_API_USER_NAME = os.getenv("BITBUCKET_API_USER_NAME", "username")
 BITBUCKET_API_APP_PASSWORD = os.getenv("BITBUCKET_API_APP_PASSWORD", "password")
