@@ -9,16 +9,11 @@ from .shared import (
     get_first_jenkins_build_of_current_pull_request,
     get_at_jenkins_build_of_current_pull_request,
     get_pr_jenkins_build_of_current_pull_request,
+    JenkinsHistoryLimit
 )
 from ..helpers.datetime import jenkins_build_datetime
 
 logger = Logger(child=True)
-
-BITBUCKET_WORKSPACE = os.getenv("BITBUCKET_WORKSPACE", "workspace")
-BITBUCKET_REPO_SLUG = os.getenv("BITBUCKET_REPO_SLUG", "repo")
-
-JENKINS_AT_JOB_NAME = os.getenv("JENKINS_AT_JOB_NAME", "job")
-JENKINS_PR_JOB_NAME = os.getenv("JENKINS_PR_JOB_NAME", "job")
 
 
 def calculate_lead_time_for_changes(pull_request) -> int:
@@ -31,6 +26,9 @@ def calculate_lead_time_for_changes(pull_request) -> int:
     last_build_of_parent_commit_display_url = fetch_parent_commit_statuses(
         parent_commit_hash, parent_commit_hash_url, statuses_of_parent_commit_url
     )
+
+    if "master" in last_build_of_parent_commit_display_url:
+        raise JenkinsHistoryLimit()
 
     first_jenkins_build_of_current_pull_request_url = get_last_build_of_parent_commit(
         last_build_of_parent_commit_display_url

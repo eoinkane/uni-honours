@@ -1,4 +1,5 @@
 import os
+import json
 from aws_lambda_powertools import Logger
 from ..helpers.network import APIS, make_request, RequestResponse
 
@@ -7,6 +8,7 @@ logger = Logger(child=True)
 BITBUCKET_WORKSPACE = os.getenv("BITBUCKET_WORKSPACE", "workspace")
 BITBUCKET_REPO_SLUG = os.getenv("BITBUCKET_REPO_SLUG", "repo")
 
+JENKINS_ST_JOB_NAME = os.getenv("JENKINS_ST_JOB_NAME", 'job')
 JENKINS_AT_JOB_NAME = os.getenv("JENKINS_AT_JOB_NAME", "job")
 JENKINS_PR_JOB_NAME = os.getenv("JENKINS_PR_JOB_NAME", "job")
 
@@ -227,7 +229,7 @@ def get_last_build_of_parent_commit(last_build_of_parent_commit_display_url):
 def fetch_first_jenkins_build_of_current_pull_request(
     first_jenkins_build_of_current_pull_request_url: str,
 ):
-    first_jenkins_build_of_current_pull_request_apis_url = f"{first_jenkins_build_of_current_pull_request_url}api/json?tree=displayName,number,id,fullDisplayName,duration,timestamp,url,inProgress,nextBuild[number,url]"
+    first_jenkins_build_of_current_pull_request_apis_url = f"{first_jenkins_build_of_current_pull_request_url}api/json?tree=displayName,result,number,id,fullDisplayName,duration,timestamp,url,inProgress,nextBuild[number,url]"
 
     logger.debug(
         "making request to get the the id of the first st build of the commit from the most recent PR",
@@ -239,6 +241,33 @@ def fetch_first_jenkins_build_of_current_pull_request(
 
     if not first_jenkins_build_of_current_pull_request["success"]:
         raise FiveHundredError(response=first_jenkins_build_of_current_pull_request)
+    
+    green_build = False
+
+    try:
+        build_result = first_jenkins_build_of_current_pull_request["data"]["result"]
+        build_number = first_jenkins_build_of_current_pull_request["data"]["number"]
+    except KeyError as err:
+        raise FiveHundredError(message=f"Key {str(err)} cannot be found in the dict")
+
+    if build_result != "SUCCESS":
+        while green_build != True:
+            jenkins_build_of_current_pull_request_apis_retry_url = f"{JENKINS_ST_JOB_NAME}/{str(int(build_number) + 1)}/api/json?tree=displayName,result,number,id,fullDisplayName,duration,timestamp,url,inProgress,nextBuild[number,url]"
+
+            first_jenkins_build_of_current_pull_request = make_request(
+                APIS.JENKINS, jenkins_build_of_current_pull_request_apis_retry_url
+            )
+
+            if not first_jenkins_build_of_current_pull_request["success"]:
+                raise FiveHundredError(response=first_jenkins_build_of_current_pull_request)
+
+            try:
+                build_result = first_jenkins_build_of_current_pull_request["data"]["result"]
+                build_number = first_jenkins_build_of_current_pull_request["data"]["number"]
+            except KeyError as err:
+                raise FiveHundredError(message=f"Key {str(err)} cannot be found in the dict")
+
+            green_build = (build_result == "SUCCESS")
 
     logger.debug(
         "successful request to jenkins to get the the id of the first st build of the commit from the most recent PR",
@@ -302,7 +331,7 @@ def get_first_jenkins_build_of_current_pull_request(
 def get_at_jenkins_build_of_current_pull_request(
     first_jenkins_build_of_current_pull_request_id,
 ):
-    first_jenkins_at_build_of_current_pull_request_path = f"{JENKINS_AT_JOB_NAME}/api/xml?tree=builds[number,url,actions[causes[upstreamUrl,upstreamBuild]]]&xpath=/workflowJob/build/action/cause[upstreamBuild%20=%20%27{first_jenkins_build_of_current_pull_request_id}%27]/../.."
+    first_jenkins_at_build_of_current_pull_request_path = f"{JENKINS_AT_JOB_NAME}/api/xml?tree=allBuilds[number,url,result,actions[causes[upstreamUrl,upstreamBuild]]]&xpath=/workflowJob/allBuild/action/cause[upstreamBuild={first_jenkins_build_of_current_pull_request_id}%20and%20contains(upstreamUrl,%20%27main%27)%20and%20contains(upstreamUrl,%20%27Draw%27)]/../.."
 
     logger.debug(
         "making request to get the the id of the first at build of the commit from the most recent PR",
@@ -323,9 +352,36 @@ def get_at_jenkins_build_of_current_pull_request(
         response=first_jenkins_at_build_of_current_pull_request,
     )
 
+    green_build = False
+
+    try:
+        build_result = first_jenkins_at_build_of_current_pull_request["data"]["allBuild"]["result"]
+        build_number = first_jenkins_at_build_of_current_pull_request["data"]["allBuild"]["number"]
+    except KeyError as err:
+        raise FiveHundredError(message=f"Key {str(err)} cannot be found in the dict")
+
+    if build_result != "SUCCESS":
+        while green_build != True:
+            jenkins_at_build_of_current_pull_request_path_retry_url = f"{JENKINS_AT_JOB_NAME}/api/xml?tree=allBuilds[number,url,result,actions[causes[upstreamUrl,upstreamBuild]]]&xpath=/workflowJob/allBuild[number={str(int(build_number) + 1)}]"
+
+            first_jenkins_at_build_of_current_pull_request = make_request(
+                APIS.JENKINS, jenkins_at_build_of_current_pull_request_path_retry_url
+            )
+
+            if not first_jenkins_at_build_of_current_pull_request["success"]:
+                raise FiveHundredError(response=first_jenkins_at_build_of_current_pull_request)
+
+            try:
+                build_result = first_jenkins_at_build_of_current_pull_request["data"]["allBuild"]["result"]
+                build_number = first_jenkins_at_build_of_current_pull_request["data"]["allBuild"]["number"]
+            except KeyError as err:
+                raise FiveHundredError(message=f"Key {str(err)} cannot be found in the dict")
+
+            green_build = (build_result == "SUCCESS")
+
     try:
         first_jenkins_at_build_of_current_pull_request_id = (
-            first_jenkins_at_build_of_current_pull_request["data"]["build"]["number"]
+            first_jenkins_at_build_of_current_pull_request["data"]["allBuild"]["number"]
         )
     except KeyError as err:
         raise FiveHundredError(message=f"Key {str(err)} cannot be found in the dict")
@@ -343,7 +399,7 @@ def get_at_jenkins_build_of_current_pull_request(
 def get_pr_jenkins_build_of_current_pull_request(
     first_jenkins_at_build_of_current_pull_request_id,
 ):
-    first_jenkins_pr_build_of_current_pull_request_path = f"{JENKINS_PR_JOB_NAME}/api/xml?tree=builds[duration,timestamp,number,url,actions[causes[upstreamUrl,upstreamBuild]]]&xpath=/workflowJob/build/action/cause[upstreamBuild%20=%20%27{first_jenkins_at_build_of_current_pull_request_id}%27]/../.."
+    first_jenkins_pr_build_of_current_pull_request_path = f"{JENKINS_PR_JOB_NAME}/api/xml?tree=allBuilds[duration,timestamp,number,url,actions[causes[upstreamUrl,upstreamBuild]]]&xpath=/workflowJob/allBuild/action/cause[upstreamBuild%20=%20%27{first_jenkins_at_build_of_current_pull_request_id}%27]/../.."
 
     logger.debug(
         "making request to get the the id of the first prod build of the commit from the most recent PR",
@@ -366,10 +422,10 @@ def get_pr_jenkins_build_of_current_pull_request(
 
     try:
         first_jenkins_pr_build_of_current_pull_request_duration_seconds = int(
-            first_jenkins_pr_build_of_current_pull_request["data"]["build"]["duration"]
+            first_jenkins_pr_build_of_current_pull_request["data"]["allBuild"]["duration"]
         )
         first_jenkins_pr_build_of_current_pull_request_start_timestamp = int(
-            first_jenkins_pr_build_of_current_pull_request["data"]["build"]["timestamp"]
+            first_jenkins_pr_build_of_current_pull_request["data"]["allBuild"]["timestamp"]
         )
     except KeyError as err:
         raise FiveHundredError(message=f"Key {str(err)} cannot be found in the dict")
