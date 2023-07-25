@@ -17,7 +17,7 @@ def get_deployment_frequency_handler(event: APIGatewayProxyEvent):
     # /api/json?tree=jobs[name,color,builds[url,result,timestamp]]
     # for single job pipelines
     # /api/json?tree=builds[url,result,timestamp]
-    request_url = f"{JENKINS_JOB_NAME}/api/json?tree=builds[url,result,timestamp]"
+    request_url = f"{JENKINS_JOB_NAME}/api/json?tree=allBuilds[url,result,timestamp]"
 
     logger.info("making jenkins request", url=request_url)
 
