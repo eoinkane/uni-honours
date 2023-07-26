@@ -17,6 +17,7 @@ from aws_lambda_powertools.event_handler import Response, content_types
 from .calculators.shared import FiveHundredError
 from .handlers.get_deployment_frequency import get_deployment_frequency_handler
 from .handlers.get_lead_time_for_changes import get_lead_time_for_changes_handler
+from .handlers.get_mean_time_to_recovery_handler import get_mean_time_to_recovery_handler
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
@@ -41,6 +42,19 @@ def get_lead_time_for_changes():
             status_code=status_codes.codes.SERVER_ERROR,
             content_type=content_types.APPLICATION_JSON,
             body=json.dumps({"message": err.message, "path": "/lead-time-for-changes"}),
+        )
+
+
+@app.get("/mean-time-to-recovery")
+def get_mean_time_to_recovery():
+    event: dict = app.current_event
+    try:
+        return get_mean_time_to_recovery_handler(event)
+    except FiveHundredError as err:
+        return Response(
+            status_code=status_codes.codes.SERVER_ERROR,
+            content_type=content_types.APPLICATION_JSON,
+            body=json.dumps({"message": err.message, "path": "/mean-time-to-recovery"}),
         )
 
 
