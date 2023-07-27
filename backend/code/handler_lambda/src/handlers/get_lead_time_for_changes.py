@@ -1,5 +1,6 @@
 import os
 import json
+from datetime import timedelta
 from aws_lambda_powertools import Logger
 from requests import status_codes
 from aws_lambda_powertools.event_handler import Response, content_types
@@ -8,6 +9,9 @@ from aws_lambda_powertools.event_handler.api_gateway import APIGatewayProxyEvent
 from ..calculators.lead_time_for_changes import calculate_lead_time_for_changes
 from ..calculators.shared import FiveHundredError, JenkinsHistoryLimit
 from ..helpers.network import make_request, APIS
+from ..helpers.datetime import (
+    timedelta_to_string
+)
 
 BITBUCKET_WORKSPACE = os.getenv("BITBUCKET_WORKSPACE", "workspace")
 BITBUCKET_REPO_SLUG = os.getenv("BITBUCKET_REPO_SLUG", "repo")
@@ -54,5 +58,8 @@ def get_lead_time_for_changes_handler(event: APIGatewayProxyEvent):
     return Response(
         status_code=status_codes.codes.OK,
         content_type=content_types.APPLICATION_JSON,
-        body=json.dumps({"meanDurationInSeconds": average_lead_time_for_changes}),
+        body=json.dumps({
+            "meanDurationInSeconds": average_lead_time_for_changes,
+            "meanDurationInDuration": timedelta_to_string(timedelta(seconds=average_lead_time_for_changes)),
+        }),
     )
