@@ -83,7 +83,7 @@ def get_mean_time_to_recovery_handler(event: APIGatewayProxyEvent):
         body=json.dumps(
             {
                 "meanTimeToRecoverySeconds": mean_time_to_recovery_seconds,
-                "meanTimeToRecoveryDurations": timedelta_to_string(
+                "meanTimeToRecoveryDuration": timedelta_to_string(
                     mean_time_to_recovery_timedelta
                 ),
             }
