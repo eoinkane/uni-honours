@@ -17,7 +17,9 @@ from aws_lambda_powertools.event_handler import Response, content_types
 from .calculators.shared import FiveHundredError
 from .handlers.get_deployment_frequency import get_deployment_frequency_handler
 from .handlers.get_lead_time_for_changes import get_lead_time_for_changes_handler
-from .handlers.get_mean_time_to_recovery_handler import get_mean_time_to_recovery_handler
+from .handlers.get_mean_time_to_recovery_handler import (
+    get_mean_time_to_recovery_handler,
+)
 from .handlers.get_change_failure_rate import get_change_failure_rate_handler
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
@@ -30,7 +32,14 @@ app = APIGatewayRestResolver(cors=empty_cors_config)
 @app.get("/deployment-frequency")
 def get_deployment_frequency_route():
     event: dict = app.current_event
-    return get_deployment_frequency_handler(event)
+    try:
+        return get_deployment_frequency_handler(event)
+    except FiveHundredError as err:
+        return Response(
+            status_code=status_codes.codes.SERVER_ERROR,
+            content_type=content_types.APPLICATION_JSON,
+            body=json.dumps({"message": err.message, "path": "/deployment-frequency"}),
+        )
 
 
 @app.get("/lead-time-for-changes")

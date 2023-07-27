@@ -1,4 +1,5 @@
 import os
+import json
 from aws_lambda_powertools import Logger
 from requests import status_codes
 from aws_lambda_powertools.event_handler import Response, content_types
@@ -6,6 +7,7 @@ from aws_lambda_powertools.event_handler.api_gateway import APIGatewayProxyEvent
 
 from ..calculators.deployment_frequency import calculate_deployment_frequency
 from ..helpers.network import make_request, APIS
+from ..calculators.shared import FiveHundredError
 
 JENKINS_JOB_NAME = os.getenv("JENKINS_JOB_NAME", "job")
 
@@ -24,39 +26,17 @@ def get_deployment_frequency_handler(event: APIGatewayProxyEvent):
     response = make_request(APIS.JENKINS, request_url)
 
     if not response["success"]:
-        logger.info("jenkins request errored out", response=response)
-        return Response(
-            status_code=status_codes.codes.SERVER_ERROR,
-            content_type=content_types.APPLICATION_JSON,
-            body={
-                "message": response["message"]
-                if "message" in response and response["message"]
-                else "Error: a problem occured",
-                "request_path": event["path"],
-            },
-        )
+        raise FiveHundredError(response=response)
 
     logger.info("jenkins request successfully made", response=response)
     deployment_frequency = calculate_deployment_frequency(response["data"])
-    if not deployment_frequency["success"]:
-        logger.info("failed to calculate deployment frequency", deploymentFrequency=deployment_frequency)
-        return Response(
-            status_code=status_codes.codes.SERVER_ERROR,
-            content_type=content_types.APPLICATION_JSON,
-            body={
-                "message": deployment_frequency["message"]
-                if "message" in deployment_frequency and deployment_frequency["message"]
-                else "Error: a problem occured",
-                "request_path": event["path"],
-            },
-        )
 
     logger.info(
         "deployment frequency calculated",
-        deploymentFrequency=deployment_frequency["data"],
+        deploymentFrequency=deployment_frequency,
     )
-    return {
-        "data": deployment_frequency["data"],
-        "message": deployment_frequency["message"],
-        "request_path": event["path"],
-    }
+    return Response(
+        status_code=status_codes.codes.OK,
+        content_type=content_types.APPLICATION_JSON,
+        body=json.dumps(deployment_frequency),
+    )
