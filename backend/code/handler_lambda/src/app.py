@@ -18,6 +18,7 @@ from .calculators.shared import FiveHundredError
 from .handlers.get_deployment_frequency import get_deployment_frequency_handler
 from .handlers.get_lead_time_for_changes import get_lead_time_for_changes_handler
 from .handlers.get_mean_time_to_recovery_handler import get_mean_time_to_recovery_handler
+from .handlers.get_change_failure_rate import get_change_failure_rate_handler
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
@@ -50,6 +51,19 @@ def get_mean_time_to_recovery():
     event: dict = app.current_event
     try:
         return get_mean_time_to_recovery_handler(event)
+    except FiveHundredError as err:
+        return Response(
+            status_code=status_codes.codes.SERVER_ERROR,
+            content_type=content_types.APPLICATION_JSON,
+            body=json.dumps({"message": err.message, "path": "/mean-time-to-recovery"}),
+        )
+
+
+@app.get("/change-failure-rate")
+def get_change_failure_rate():
+    event: dict = app.current_event
+    try:
+        return get_change_failure_rate_handler(event)
     except FiveHundredError as err:
         return Response(
             status_code=status_codes.codes.SERVER_ERROR,
