@@ -12,8 +12,8 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 
-const API_URL = process.env.REACT_APP_API_URL || 'url';
-const API_AUTH_TOKEN = process.env.REACT_APP_API_AUTH_TOKEN || 'token';
+const API_URL = process.env.REACT_APP_API_URL ?? 'url';
+const API_AUTH_TOKEN = process.env.REACT_APP_API_AUTH_TOKEN ?? 'token';
 
 type STATE = 'startup' | 'loading' | 'loaded' | 'error';
 
