@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 interface DeploymentFrequencyData {
   numberOfDeployments: number;
@@ -34,7 +36,7 @@ interface MetricData {
 const App = () => {
   const [metricData, setMetricData] = useState<MetricData | null>(null);
 
-  useEffect(() => {
+  const loadHandler = async () => {
     setMetricData({
       deploymentFrequency: {
         numberOfDeployments: 7,
@@ -54,7 +56,7 @@ const App = () => {
         meanTimeToRecoveryDuration: '0 days, 1 hr(s), 0 min(s), 0 sec(s)',
       }
     });
-  }, []);
+  };
 
   const renderContent = () => (
     <>
@@ -110,6 +112,16 @@ const App = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             DORA Metrics Dashboard
           </Typography>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+            onClick={loadHandler}
+          >
+            <RefreshIcon />
+          </IconButton>
         </Toolbar>
       </AppBar>
       {renderContent()}
