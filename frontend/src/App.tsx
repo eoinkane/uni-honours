@@ -7,6 +7,10 @@ import IconButton from '@mui/material/IconButton';
 import ClearAllIcon from '@mui/icons-material/ClearAll';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import LinearProgress from '@mui/material/LinearProgress';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
+import Container from '@mui/material/Container';
 
 const API_URL = process.env.REACT_APP_API_URL || 'url';
 const API_AUTH_TOKEN = process.env.REACT_APP_API_AUTH_TOKEN || 'token';
@@ -132,67 +136,100 @@ const App = () => {
         );
       case 'loading':
         return <LinearProgress />;
-      case 'loaded':
-        return (
-          <>
-            <p>Deployment Frequency</p>
-            <p>
-              Number of Deployments:{' '}
-              {metricData?.deploymentFrequency?.numberOfDeployments}
-            </p>
-            <p>
-              First Deployment:{' '}
-              {new Date(
-                metricData?.deploymentFrequency?.firstBuildDatetime || 'null'
-              ).toUTCString()}
-            </p>
-            <p>
-              Latest Deployment:{' '}
-              {new Date(
-                metricData?.deploymentFrequency?.latestBuildDatetime || 'null'
-              ).toUTCString()}
-            </p>
-            <p>
-              Time Between Latest and First Deployment:
-              <br />
-              {metricData?.deploymentFrequency?.timeBetweenLatestAndFirstBuild}
-            </p>
-            <p>Lead Time For Changes</p>
-            <p>
-              Average Duration of Deployments in Seconds:
-              <br />
-              {Math.round(
-                metricData?.leadTimeForChanges?.meanDurationInSeconds || 0.0
-              )}{' '}
-              second(s)
-            </p>
-            <p>
-              Average Time of Deployment:
-              <br />
-              {metricData?.leadTimeForChanges?.meanDurationInDuration}
-            </p>
-            <p>Change Failure Rate</p>
-            <p>
-              Percentage of Changes That Resulted in Failures:{' '}
-              {metricData?.changeFailureRate?.percentageOfChangeFailures}%
-            </p>
-            <p>Time to Restore Service</p>
-            <p>
-              Average Time to Restore Service in Seconds:
-              <br />
-              {Math.round(
-                metricData?.timeToRestoreService?.meanTimeToRecoverySeconds ||
-                  0.0
-              )}{' '}
-              second(s)
-            </p>
-            <p>
-              Average Time to Restore Service:
-              <br />
-              {metricData?.timeToRestoreService?.meanTimeToRecoveryDuration}
-            </p>
-          </>
-        );
+        case 'loaded':
+          if (metricData !== null) {
+            return (
+              <Box sx={{ mx: 10 }}>
+                <Grid container spacing={2} sx={{ mb: 1 }}>
+                  <Grid item md={6} >
+                    <Paper elevation={12} sx={{ p: 5 }}>
+                      <Typography variant="h5" gutterBottom>
+                        Deployment Frequency
+                      </Typography>
+                      <Typography variant="body1" gutterBottom>
+                        Number of Deployments:{' '}
+                        {metricData.deploymentFrequency.numberOfDeployments}
+                      </Typography>
+                      <Typography variant="body1" gutterBottom>
+                        First Deployment:{' '}
+                        {new Date(
+                          metricData.deploymentFrequency.firstBuildDatetime
+                        ).toUTCString()}
+                      </Typography>
+                      <Typography variant="body1" gutterBottom>
+                        Latest Deployment:{' '}
+                        {new Date(
+                          metricData.deploymentFrequency.latestBuildDatetime
+                        ).toUTCString()}
+                      </Typography>
+                      <Typography variant="body1" sx={{}} gutterBottom>
+                        Time Between Latest and First Deployment:
+                        <br />
+                        {
+                          metricData.deploymentFrequency
+                            .timeBetweenLatestAndFirstBuild
+                        }
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                  <Grid item md={6}>
+                    <Paper elevation={12} sx={{ p: 5, height: '70%' }}>
+                      <Typography variant="h5" gutterBottom>
+                        Lead Time For Changes
+                      </Typography>
+                      <Typography variant="body1" gutterBottom>
+                        Average Duration of Deployments in Seconds:
+                        <br />
+                        {Math.round(
+                          metricData.leadTimeForChanges.meanDurationInSeconds
+                        )} second(s)
+                      </Typography>
+                      <Typography variant="body1" gutterBottom>
+                        Average Time of Deployment:
+                        <br />
+                        {metricData.leadTimeForChanges.meanDurationInDuration}
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                </Grid>
+                <Grid container spacing={2} sx={{ mt: 1 }}>
+                  <Grid item md={6} >
+                    <Paper elevation={12} sx={{ p: 5, height: '70%' }}>
+                      <Typography variant="h5" gutterBottom>
+                        Change Failure Rate
+                      </Typography>
+                      <Typography variant="body1" gutterBottom>
+                        Percentage of Changes That Resulted in Failures:
+                        {' '}
+                        {metricData.changeFailureRate.percentageOfChangeFailures}%
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                  <Grid item md={6}>
+                    <Paper elevation={12} sx={{ p: 5, height: '70%' }}>
+                      <Typography variant="h5" gutterBottom>
+                        Time to Restore Service
+                      </Typography>
+                      <Typography variant="body1" gutterBottom>
+                        Average Time to Restore Service in Seconds:
+                        <br />
+                        {Math.round(
+                          metricData.timeToRestoreService.meanTimeToRecoverySeconds
+                        )} second(s)
+                      </Typography>
+                      <Typography variant="body1" gutterBottom>
+                        Average Time to Restore Service:
+                        <br />
+                        {metricData.timeToRestoreService.meanTimeToRecoveryDuration}
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                </Grid>
+              </Box>
+            );
+          } else {
+            return <Typography variant="h6">A problem occured.</Typography>;
+          }
       case 'error':
         return (
           <Typography variant="h6">
@@ -233,7 +270,7 @@ const App = () => {
           </IconButton>
         </Toolbar>
       </AppBar>
-      {renderContent()}
+      <Container>{renderContent()}</Container>
     </>
   );
 };
