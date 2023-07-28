@@ -77,7 +77,7 @@ def get_change_failure_rate():
         return Response(
             status_code=status_codes.codes.SERVER_ERROR,
             content_type=content_types.APPLICATION_JSON,
-            body=json.dumps({"message": err.message, "path": "/mean-time-to-recovery"}),
+            body=json.dumps({"message": err.message, "path": "/change-failure-rate"}),
         )
 
 

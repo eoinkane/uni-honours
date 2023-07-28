@@ -331,7 +331,7 @@ def get_first_jenkins_build_of_current_pull_request(
 def get_at_jenkins_build_of_current_pull_request(
     first_jenkins_build_of_current_pull_request_id,
 ):
-    first_jenkins_at_build_of_current_pull_request_path = f"{JENKINS_AT_JOB_NAME}/api/xml?tree=allBuilds[number,url,result,actions[causes[upstreamUrl,upstreamBuild]]]&xpath=/workflowJob/allBuild/action/cause[upstreamBuild={first_jenkins_build_of_current_pull_request_id}%20and%20contains(upstreamUrl,%20%27main%27)%20and%20contains(upstreamUrl,%20%27Draw%27)]/../.."
+    first_jenkins_at_build_of_current_pull_request_path = f"{JENKINS_AT_JOB_NAME}/api/xml?tree=allBuilds[number,url,result,actions[causes[upstreamUrl,upstreamBuild]]]&xpath=/workflowJob/allBuild/action/cause[upstreamBuild={first_jenkins_build_of_current_pull_request_id}%20and%20contains(upstreamUrl,%20%27main%27)%20and%20contains(upstreamUrl,%20%27Beehive%2520Improvement%2520Program%27)]/../.."
 
     logger.debug(
         "making request to get the the id of the first at build of the commit from the most recent PR",
