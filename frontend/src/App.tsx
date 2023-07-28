@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
+
+const API_URL = process.env.REACT_APP_API_URL || 'url';
+const API_AUTH_TOKEN = process.env.REACT_APP_API_AUTH_TOKEN || 'token';
 
 interface DeploymentFrequencyData {
   numberOfDeployments: number;
@@ -36,26 +40,43 @@ interface MetricData {
 const App = () => {
   const [metricData, setMetricData] = useState<MetricData | null>(null);
 
+  const pathHandler = (path: string) => async () => {
+    try {
+      const response = await axios.get(`${API_URL}${path}`, {
+        headers: {
+          Authorization: `${API_AUTH_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      return response;
+    } catch (error) {
+      return {
+        status: -1,
+        data: {},
+      };
+    }
+  };
+
   const loadHandler = async () => {
-    setMetricData({
-      deploymentFrequency: {
-        numberOfDeployments: 7,
-        latestBuildDatetime: '2023-03-10T10:10:30.000000+00:00',
-        firstBuildDatetime: '2023-03-17T10:10:30.000000+00:00',
-        timeBetweenLatestAndFirstBuild: '7 days, 0 hr(s), 0 min(s), 0 sec(s)',
-      },
-      leadTimeForChanges: {
-        meanDurationInSeconds: 1800.0,
-        meanDurationInDuration: '0 hr(s), 30 min(s), 0 sec(s)',
-      },
-      changeFailureRate: {
-        percentageOfChangeFailures: 30,
-      },
-      timeToRestoreService: {
-        meanTimeToRecoverySeconds: 3600.0,
-        meanTimeToRecoveryDuration: '0 days, 1 hr(s), 0 min(s), 0 sec(s)',
-      }
-    });
+    const deploymentFrequency = await pathHandler('/deployment-frequency')();
+
+    if (deploymentFrequency.status === 200) {
+      setMetricData({
+        deploymentFrequency: deploymentFrequency.data,
+        leadTimeForChanges: {
+          meanDurationInSeconds: 1800.0,
+          meanDurationInDuration: '0 hr(s), 30 min(s), 0 sec(s)',
+        },
+        changeFailureRate: {
+          percentageOfChangeFailures: 30,
+        },
+        timeToRestoreService: {
+          meanTimeToRecoverySeconds: 3600.0,
+          meanTimeToRecoveryDuration: '0 days, 1 hr(s), 0 min(s), 0 sec(s)',
+        }
+      });
+    }
+    
   };
 
   const renderContent = () => (
