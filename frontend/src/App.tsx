@@ -37,6 +37,13 @@ interface MetricData {
   timeToRestoreService: TimeToRestoreServiceData;
 }
 
+class RequestFailureError extends Error {
+  constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, RequestFailureError.prototype);
+  }
+}
+
 const App = () => {
   const [metricData, setMetricData] = useState<MetricData | null>(null);
 
@@ -57,26 +64,44 @@ const App = () => {
     }
   };
 
-  const loadHandler = async () => {
-    const deploymentFrequency = await pathHandler('/deployment-frequency')();
+  const fetchMetricsHandler = async () => {
+    const [deploymentFrequencyResponse, leadTimeForChangesResponse, changeFailureRateResponse, timeToRestoreServiceResponse] = await Promise.all([
+      pathHandler('/deployment-frequency')(),
+      pathHandler('/lead-time-for-changes')(),
+      pathHandler('/change-failure-rate')(),
+      pathHandler('/mean-time-to-recovery')(),
+    ]);
 
-    if (deploymentFrequency.status === 200) {
+    const statuses = [
+      deploymentFrequencyResponse,
+      leadTimeForChangesResponse,
+      changeFailureRateResponse,
+      timeToRestoreServiceResponse,
+    ].map((response) => response.status);
+
+    if (
+      statuses.every((value, _, array) => value === array[0]) &&
+      statuses[0] === 200
+    ) {
       setMetricData({
-        deploymentFrequency: deploymentFrequency.data,
-        leadTimeForChanges: {
-          meanDurationInSeconds: 1800.0,
-          meanDurationInDuration: '0 hr(s), 30 min(s), 0 sec(s)',
-        },
-        changeFailureRate: {
-          percentageOfChangeFailures: 30,
-        },
-        timeToRestoreService: {
-          meanTimeToRecoverySeconds: 3600.0,
-          meanTimeToRecoveryDuration: '0 days, 1 hr(s), 0 min(s), 0 sec(s)',
-        }
+        deploymentFrequency: deploymentFrequencyResponse.data,
+        leadTimeForChanges: leadTimeForChangesResponse.data,
+        changeFailureRate: changeFailureRateResponse.data,
+        timeToRestoreService: timeToRestoreServiceResponse.data
       });
+    } else if (statuses.includes(-1)) {
+      throw new RequestFailureError('network request failed');
     }
-    
+  };
+
+  const loadHandler = async () => {
+    try {
+      await fetchMetricsHandler();
+    } catch (err) {
+      if (err instanceof RequestFailureError) {
+        return;
+      }
+    }
   };
 
   const renderContent = () => (
