@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 
 interface DeploymentFrequencyData {
   numberOfDeployments: number;
@@ -102,7 +105,13 @@ const App = () => {
 
   return (
     <>
-      <h2>DORA Metrics Dashboard</h2>
+      <AppBar position="static" component="header" sx={{ mb: 5 }}>
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            DORA Metrics Dashboard
+          </Typography>
+        </Toolbar>
+      </AppBar>
       {renderContent()}
     </>
   );
