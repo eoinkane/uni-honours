@@ -4,6 +4,7 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import ClearAllIcon from '@mui/icons-material/ClearAll';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import LinearProgress from '@mui/material/LinearProgress';
 
@@ -101,6 +102,11 @@ const App = () => {
     } else if (statuses.includes(-1)) {
       throw new RequestFailureError('network request failed');
     }
+  };
+
+  const clearHandler = () => {
+    setState('startup');
+    setMetricData(null);
   };
 
   const loadHandler = async () => {
@@ -214,6 +220,16 @@ const App = () => {
             onClick={loadHandler}
           >
             <RefreshIcon />
+          </IconButton>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+            onClick={clearHandler}
+          >
+            <ClearAllIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
