@@ -5,9 +5,12 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import LinearProgress from '@mui/material/LinearProgress';
 
 const API_URL = process.env.REACT_APP_API_URL || 'url';
 const API_AUTH_TOKEN = process.env.REACT_APP_API_AUTH_TOKEN || 'token';
+
+type STATE = 'startup' | 'loading' | 'loaded' | 'error';
 
 interface DeploymentFrequencyData {
   numberOfDeployments: number;
@@ -26,8 +29,8 @@ interface ChangeFailureRateData {
 }
 
 interface TimeToRestoreServiceData {
-    meanTimeToRecoverySeconds: number;
-    meanTimeToRecoveryDuration: string;
+  meanTimeToRecoverySeconds: number;
+  meanTimeToRecoveryDuration: string;
 }
 
 interface MetricData {
@@ -46,6 +49,7 @@ class RequestFailureError extends Error {
 
 const App = () => {
   const [metricData, setMetricData] = useState<MetricData | null>(null);
+  const [state, setState] = useState<STATE>('startup');
 
   const pathHandler = (path: string) => async () => {
     try {
@@ -65,7 +69,12 @@ const App = () => {
   };
 
   const fetchMetricsHandler = async () => {
-    const [deploymentFrequencyResponse, leadTimeForChangesResponse, changeFailureRateResponse, timeToRestoreServiceResponse] = await Promise.all([
+    const [
+      deploymentFrequencyResponse,
+      leadTimeForChangesResponse,
+      changeFailureRateResponse,
+      timeToRestoreServiceResponse,
+    ] = await Promise.all([
       pathHandler('/deployment-frequency')(),
       pathHandler('/lead-time-for-changes')(),
       pathHandler('/change-failure-rate')(),
@@ -87,7 +96,7 @@ const App = () => {
         deploymentFrequency: deploymentFrequencyResponse.data,
         leadTimeForChanges: leadTimeForChangesResponse.data,
         changeFailureRate: changeFailureRateResponse.data,
-        timeToRestoreService: timeToRestoreServiceResponse.data
+        timeToRestoreService: timeToRestoreServiceResponse.data,
       });
     } else if (statuses.includes(-1)) {
       throw new RequestFailureError('network request failed');
@@ -95,61 +104,87 @@ const App = () => {
   };
 
   const loadHandler = async () => {
+    setState('loading');
     try {
       await fetchMetricsHandler();
     } catch (err) {
       if (err instanceof RequestFailureError) {
+        setState('error');
         return;
       }
     }
+    setState('loaded');
   };
 
-  const renderContent = () => (
-    <>
-      <p>Deployment Frequency</p>
-      <p>Number of Deployments: {metricData?.deploymentFrequency?.numberOfDeployments}</p>
-      <p>
-        First Deployment:{' '}
-        {new Date(metricData?.deploymentFrequency?.firstBuildDatetime || 'null').toUTCString()}
-      </p>
-      <p>
-        Latest Deployment:{' '}
-        {new Date(metricData?.deploymentFrequency?.latestBuildDatetime || 'null').toUTCString()}
-      </p>
-      <p>
-        Time Between Latest and First Deployment:
-        <br />
-        {metricData?.deploymentFrequency?.timeBetweenLatestAndFirstBuild}
-      </p>
-      <p>Lead Time For Changes</p>
-      <p>
-        Average Duration of Deployments in Seconds:
-        <br />
-        {Math.round(metricData?.leadTimeForChanges?.meanDurationInSeconds || 0.0)} second(s)
-      </p>
-      <p>
-        Average Time of Deployment:
-        <br />
-        {metricData?.leadTimeForChanges?.meanDurationInDuration}
-      </p>
-      <p>Change Failure Rate</p>
-      <p>
-        Percentage of Changes That Resulted in Failures:{' '}
-        {metricData?.changeFailureRate?.percentageOfChangeFailures}%
-      </p>
-      <p>Time to Restore Service</p>
-      <p>
-        Average Time to Restore Service in Seconds:
-        <br />
-        {Math.round(metricData?.timeToRestoreService?.meanTimeToRecoverySeconds || 0.0)} second(s)
-      </p>
-      <p>
-        Average Time to Restore Service:
-        <br />
-        {metricData?.timeToRestoreService?.meanTimeToRecoveryDuration}
-      </p>
-    </>
-  );
+  const renderContent = () => {
+    switch (state) {
+      case 'loading':
+        return <LinearProgress />;
+      case 'loaded':
+        return (
+          <>
+            <p>Deployment Frequency</p>
+            <p>
+              Number of Deployments:{' '}
+              {metricData?.deploymentFrequency?.numberOfDeployments}
+            </p>
+            <p>
+              First Deployment:{' '}
+              {new Date(
+                metricData?.deploymentFrequency?.firstBuildDatetime || 'null'
+              ).toUTCString()}
+            </p>
+            <p>
+              Latest Deployment:{' '}
+              {new Date(
+                metricData?.deploymentFrequency?.latestBuildDatetime || 'null'
+              ).toUTCString()}
+            </p>
+            <p>
+              Time Between Latest and First Deployment:
+              <br />
+              {metricData?.deploymentFrequency?.timeBetweenLatestAndFirstBuild}
+            </p>
+            <p>Lead Time For Changes</p>
+            <p>
+              Average Duration of Deployments in Seconds:
+              <br />
+              {Math.round(
+                metricData?.leadTimeForChanges?.meanDurationInSeconds || 0.0
+              )}{' '}
+              second(s)
+            </p>
+            <p>
+              Average Time of Deployment:
+              <br />
+              {metricData?.leadTimeForChanges?.meanDurationInDuration}
+            </p>
+            <p>Change Failure Rate</p>
+            <p>
+              Percentage of Changes That Resulted in Failures:{' '}
+              {metricData?.changeFailureRate?.percentageOfChangeFailures}%
+            </p>
+            <p>Time to Restore Service</p>
+            <p>
+              Average Time to Restore Service in Seconds:
+              <br />
+              {Math.round(
+                metricData?.timeToRestoreService?.meanTimeToRecoverySeconds ||
+                  0.0
+              )}{' '}
+              second(s)
+            </p>
+            <p>
+              Average Time to Restore Service:
+              <br />
+              {metricData?.timeToRestoreService?.meanTimeToRecoveryDuration}
+            </p>
+          </>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <>
