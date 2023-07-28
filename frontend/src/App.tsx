@@ -118,6 +118,12 @@ const App = () => {
 
   const renderContent = () => {
     switch (state) {
+      case 'startup':
+        return (
+          <Typography variant="h6">
+            Please click the refresh icon to fetch the metrics
+          </Typography>
+        );
       case 'loading':
         return <LinearProgress />;
       case 'loaded':
@@ -180,6 +186,12 @@ const App = () => {
               {metricData?.timeToRestoreService?.meanTimeToRecoveryDuration}
             </p>
           </>
+        );
+      case 'error':
+        return (
+          <Typography variant="h6">
+            An error occured while fetching the metrics
+          </Typography>
         );
       default:
         return null;
