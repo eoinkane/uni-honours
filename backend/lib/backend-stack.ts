@@ -117,6 +117,10 @@ export class BackendStack extends Stack {
         blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
         publicReadAccess: false,
       });
+
+      new CfnOutput(this, `${cdkId}UiBucketName`, {
+        value: uiBucket.bucketName
+      });
   
       const uiBucketOriginAccess = new OriginAccessIdentity(this, `${cdkId}UiBucketOrigin`);
       uiBucket.grantRead(uiBucketOriginAccess);
