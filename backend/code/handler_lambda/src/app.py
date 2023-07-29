@@ -15,12 +15,12 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 from aws_lambda_powertools.event_handler import Response, content_types
 
 from .calculators.shared import FiveHundredError
-from .handlers.get_deployment_frequency import get_deployment_frequency_handler
 from .handlers.get_lead_time_for_changes import get_lead_time_for_changes_handler
 from .handlers.get_mean_time_to_recovery_handler import (
     get_mean_time_to_recovery_handler,
 )
 from .handlers.get_change_failure_rate import get_change_failure_rate_handler
+from .globals import validate_project_id_param, FourTwoTwoError
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
@@ -29,11 +29,20 @@ empty_cors_config = CORSConfig(allow_headers=["RandomHeader"])
 app = APIGatewayRestResolver(cors=empty_cors_config)
 
 
-@app.get("/deployment-frequency")
-def get_deployment_frequency_route():
+@app.get("/deployment-frequency/<project_id>")
+def get_deployment_frequency_route(project_id: str):
     event: dict = app.current_event
     try:
+        validate_project_id_param(int(project_id))
+        from .handlers.get_deployment_frequency import get_deployment_frequency_handler
+
         return get_deployment_frequency_handler(event)
+    except FourTwoTwoError as err:
+        return Response(
+            status_code=status_codes.codes.UNPROCESSABLE_ENTITY,
+            content_type=content_types.APPLICATION_JSON,
+            body=json.dumps({"message": err.message, "path": "/deployment-frequency"}),
+        )
     except FiveHundredError as err:
         return Response(
             status_code=status_codes.codes.SERVER_ERROR,

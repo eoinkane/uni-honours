@@ -32,6 +32,13 @@ const awsAvailabilityZones = (process.env.AWS_AVAILABILITY_ZONES || 'zone-1,zone
 const jenkinStJobName = process.env.JENKINS_ST_JOB_NAME || 'value';
 const jenkinsAtJobName = process.env.JENKINS_AT_JOB_NAME || 'value';
 const jenkinsPrJobName = process.env.JENKINS_PR_JOB_NAME || 'value';
+
+const jenkinsStJobNames = process.env.JENKINS_ST_JOB_NAMES ?? '';
+const jenkinsAtJobNames = process.env.JENKINS_AT_JOB_NAMES ?? '';
+const jenkinsPrJobNames = process.env.JENKINS_PR_JOB_NAMES ?? '';
+const jenkinsJobNames = process.env.JENKINS_JOB_NAMES ?? '';
+const bitbucketRepoSlugs = process.env.BITBUCKET_REPO_SLUGS ?? '';
+
 const bitbucketWorkspace = process.env.BITBUCKET_WORKSPACE || 'value';
 const bitbucketRepoSlug = process.env.BITBUCKET_REPO_SLUG || 'value';
 
@@ -53,15 +60,20 @@ export class BackendStack extends Stack {
       functionName: `${cdkStack}-handler-lambda`,
       environment: {
         JENKINS_API_URL: jenkinsApiUrl,
-        JENKINS_JOB_NAME: jenkinsJobName,
+        // JENKINS_JOB_NAME: jenkinsJobName,
         BITBUCKET_API_URL: bitbucketApiUrl,
         BITBUCKET_API_USER_NAME: bitbucketApiUserName,
         BITBUCKET_API_APP_PASSWORD: bitbucketApiAppPassword,
-        JENKINS_ST_JOB_NAME: jenkinStJobName,
-        JENKINS_AT_JOB_NAME: jenkinsAtJobName,
-        JENKINS_PR_JOB_NAME: jenkinsPrJobName,
+        JENKINS_ST_JOB_NAMES: jenkinsStJobNames,
+        JENKINS_AT_JOB_NAMES: jenkinsAtJobNames,
+        JENKINS_PR_JOB_NAMES: jenkinsPrJobNames,
+        JENKINS_JOB_NAMES: jenkinsJobNames,
+        BITBUCKET_REPO_SLUGS: bitbucketRepoSlugs,
+        // JENKINS_ST_JOB_NAME: jenkinStJobName,
+        // JENKINS_AT_JOB_NAME: jenkinsAtJobName,
+        // JENKINS_PR_JOB_NAME: jenkinsPrJobName,
         BITBUCKET_WORKSPACE: bitbucketWorkspace,
-        BITBUCKET_REPO_SLUG: bitbucketRepoSlug
+        // BITBUCKET_REPO_SLUG: bitbucketRepoSlug
       },
       vpc: awsVpc,
       vpcSubnets: { subnetGroupName: awsSubnetName },

@@ -9,7 +9,7 @@ from ..calculators.deployment_frequency import calculate_deployment_frequency
 from ..helpers.network import make_request, APIS
 from ..calculators.shared import FiveHundredError
 
-JENKINS_JOB_NAME = os.getenv("JENKINS_JOB_NAME", "job")
+from ..globals import JENKINS_JOB_NAME
 
 logger = Logger(child=True)
 
