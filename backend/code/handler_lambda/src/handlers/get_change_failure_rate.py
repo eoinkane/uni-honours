@@ -4,17 +4,19 @@ from requests import status_codes
 from aws_lambda_powertools.event_handler import Response, content_types
 from aws_lambda_powertools.event_handler.api_gateway import APIGatewayProxyEvent
 
-from .shared import get_all_pull_requests, get_num_of_pull_requests
-from ..calculators.shared import FiveHundredError
+from ..calculators.shared import get_all_pull_requests, get_num_of_pull_requests
+from ..exceptions import FiveHundredError
 
 
 logger = Logger(child=True)
 
 
-def get_change_failure_rate_handler(event: APIGatewayProxyEvent):
-    num_of_bitbucket_pull_requests = get_num_of_pull_requests()
+def get_change_failure_rate_handler(global_variables):
+    num_of_bitbucket_pull_requests = get_num_of_pull_requests(global_variables)
 
-    pull_requests_response = get_all_pull_requests(num_of_bitbucket_pull_requests)
+    pull_requests_response = get_all_pull_requests(
+        global_variables, num_of_bitbucket_pull_requests
+    )
 
     change_failure_count = 0
     pull_requests = []
@@ -28,18 +30,21 @@ def get_change_failure_rate_handler(event: APIGatewayProxyEvent):
         try:
             source_branch = pull_request["source"]["branch"]["name"]
         except KeyError as err:
-            raise FiveHundredError(message=f"Key {str(err)} cannot be found in the dict")
-    
+            raise FiveHundredError(
+                message=f"Key {str(err)} cannot be found in the dict"
+            )
+
         if "hotfix" in source_branch:
             change_failure_count += 1
-
 
     return Response(
         status_code=status_codes.codes.OK,
         content_type=content_types.APPLICATION_JSON,
-        body=json.dumps({
-            "percentageOfChangeFailures": int((change_failure_count / len(pull_requests)) * 100)
-        }),
+        body=json.dumps(
+            {
+                "percentageOfChangeFailures": int(
+                    (change_failure_count / len(pull_requests)) * 100
+                )
+            }
+        ),
     )
-
-

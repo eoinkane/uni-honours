@@ -3,7 +3,7 @@ from typing_extensions import TypedDict, NotRequired
 from datetime import timedelta
 
 from ..helpers.datetime import jenkins_build_datetime, timedelta_to_string
-from .shared import FiveHundredError
+from ..exceptions import FiveHundredError
 
 
 class DeploymentFrequency(TypedDict):

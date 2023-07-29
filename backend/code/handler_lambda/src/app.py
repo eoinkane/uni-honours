@@ -14,13 +14,14 @@ from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from aws_lambda_powertools.event_handler import Response, content_types
 
-from .calculators.shared import FiveHundredError
+from .exceptions import FiveHundredError, FourTwoTwoError
 from .handlers.get_lead_time_for_changes import get_lead_time_for_changes_handler
+from .handlers.get_deployment_frequency import get_deployment_frequency_handler
 from .handlers.get_mean_time_to_recovery_handler import (
     get_mean_time_to_recovery_handler,
 )
 from .handlers.get_change_failure_rate import get_change_failure_rate_handler
-from .globals import validate_project_id_param, FourTwoTwoError
+from .globals import validate_project_id_param
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
@@ -31,12 +32,10 @@ app = APIGatewayRestResolver(cors=empty_cors_config)
 
 @app.get("/deployment-frequency/<project_id>")
 def get_deployment_frequency_route(project_id: str):
-    event: dict = app.current_event
     try:
-        validate_project_id_param(int(project_id))
-        from .handlers.get_deployment_frequency import get_deployment_frequency_handler
+        global_variables = validate_project_id_param(int(project_id))
 
-        return get_deployment_frequency_handler(event)
+        return get_deployment_frequency_handler(global_variables)
     except FourTwoTwoError as err:
         return Response(
             status_code=status_codes.codes.UNPROCESSABLE_ENTITY,
@@ -51,11 +50,18 @@ def get_deployment_frequency_route(project_id: str):
         )
 
 
-@app.get("/lead-time-for-changes")
-def get_lead_time_for_changes():
-    event: dict = app.current_event
+@app.get("/lead-time-for-changes/<project_id>")
+def get_lead_time_for_changes(project_id: str):
     try:
-        return get_lead_time_for_changes_handler(event)
+        global_variables = validate_project_id_param(int(project_id))
+
+        return get_lead_time_for_changes_handler(global_variables)
+    except FourTwoTwoError as err:
+        return Response(
+            status_code=status_codes.codes.UNPROCESSABLE_ENTITY,
+            content_type=content_types.APPLICATION_JSON,
+            body=json.dumps({"message": err.message, "path": "/lead-time-for-changes"}),
+        )
     except FiveHundredError as err:
         return Response(
             status_code=status_codes.codes.SERVER_ERROR,
@@ -64,11 +70,18 @@ def get_lead_time_for_changes():
         )
 
 
-@app.get("/mean-time-to-recovery")
-def get_mean_time_to_recovery():
-    event: dict = app.current_event
+@app.get("/mean-time-to-recovery/<project_id>")
+def get_mean_time_to_recovery(project_id: str):
     try:
-        return get_mean_time_to_recovery_handler(event)
+        global_variables = validate_project_id_param(int(project_id))
+
+        return get_mean_time_to_recovery_handler(global_variables)
+    except FourTwoTwoError as err:
+        return Response(
+            status_code=status_codes.codes.UNPROCESSABLE_ENTITY,
+            content_type=content_types.APPLICATION_JSON,
+            body=json.dumps({"message": err.message, "path": "/mean-time-to-recovery"}),
+        )
     except FiveHundredError as err:
         return Response(
             status_code=status_codes.codes.SERVER_ERROR,
@@ -77,11 +90,18 @@ def get_mean_time_to_recovery():
         )
 
 
-@app.get("/change-failure-rate")
-def get_change_failure_rate():
-    event: dict = app.current_event
+@app.get("/change-failure-rate/<project_id>")
+def get_change_failure_rate(project_id: str):
     try:
-        return get_change_failure_rate_handler(event)
+        global_variables = validate_project_id_param(int(project_id))
+
+        return get_change_failure_rate_handler(global_variables)
+    except FourTwoTwoError as err:
+        return Response(
+            status_code=status_codes.codes.UNPROCESSABLE_ENTITY,
+            content_type=content_types.APPLICATION_JSON,
+            body=json.dumps({"message": err.message, "path": "/change-failure-rate"}),
+        )
     except FiveHundredError as err:
         return Response(
             status_code=status_codes.codes.SERVER_ERROR,

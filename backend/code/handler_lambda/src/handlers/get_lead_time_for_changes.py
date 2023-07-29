@@ -9,18 +9,16 @@ from aws_lambda_powertools.event_handler.api_gateway import APIGatewayProxyEvent
 from ..calculators.lead_time_for_changes import calculate_lead_time_for_changes
 from ..calculators.shared import FiveHundredError, JenkinsHistoryLimit
 from ..helpers.network import make_request, APIS
-from ..helpers.datetime import (
-    timedelta_to_string
-)
+from ..helpers.datetime import timedelta_to_string
 
 BITBUCKET_WORKSPACE = os.getenv("BITBUCKET_WORKSPACE", "workspace")
-BITBUCKET_REPO_SLUG = os.getenv("BITBUCKET_REPO_SLUG", "repo")
+
 
 logger = Logger(child=True)
 
 
-def get_lead_time_for_changes_handler(event: APIGatewayProxyEvent):
-    pull_requests_request_url = f"""/repositories/{BITBUCKET_WORKSPACE}/{BITBUCKET_REPO_SLUG}/pullrequests?state=MERGED&fields=values.id,values.title,values.state,values.merge_commit.hash,values.merge_commit.date,values.merge_commit.links.self.href,values.merge_commit.links.statuses.href,values.merge_commit.parents,values.merge_commit.parents.hash,values.merge_commit.parents.date,values.merge_commit.parents.links.self.href,values.merge_commit.parents.links.html.href,values.merge_commit.parents.links.statuses.href"""
+def get_lead_time_for_changes_handler(global_variables):
+    pull_requests_request_url = f"""/repositories/{BITBUCKET_WORKSPACE}/{global_variables["BITBUCKET_REPO_SLUG"]}/pullrequests?state=MERGED&fields=values.id,values.title,values.state,values.merge_commit.hash,values.merge_commit.date,values.merge_commit.links.self.href,values.merge_commit.links.statuses.href,values.merge_commit.parents,values.merge_commit.parents.hash,values.merge_commit.parents.date,values.merge_commit.parents.links.self.href,values.merge_commit.parents.links.html.href,values.merge_commit.parents.links.statuses.href"""
 
     bitbucket_pull_requests_response = make_request(
         APIS.BITBUCKET, pull_requests_request_url
@@ -47,7 +45,9 @@ def get_lead_time_for_changes_handler(event: APIGatewayProxyEvent):
     lead_time_for_changes = []
     for pull_request in pull_requests:
         try:
-            lead_time_for_changes.append(calculate_lead_time_for_changes(pull_request))
+            lead_time_for_changes.append(
+                calculate_lead_time_for_changes(global_variables, pull_request)
+            )
         except JenkinsHistoryLimit:
             break
 
@@ -58,8 +58,12 @@ def get_lead_time_for_changes_handler(event: APIGatewayProxyEvent):
     return Response(
         status_code=status_codes.codes.OK,
         content_type=content_types.APPLICATION_JSON,
-        body=json.dumps({
-            "meanDurationInSeconds": average_lead_time_for_changes,
-            "meanDurationInDuration": timedelta_to_string(timedelta(seconds=average_lead_time_for_changes)),
-        }),
+        body=json.dumps(
+            {
+                "meanDurationInSeconds": average_lead_time_for_changes,
+                "meanDurationInDuration": timedelta_to_string(
+                    timedelta(seconds=average_lead_time_for_changes)
+                ),
+            }
+        ),
     )

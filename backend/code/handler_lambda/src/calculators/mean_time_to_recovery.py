@@ -1,14 +1,13 @@
 from aws_lambda_powertools import Logger
 from .shared import (
-    FiveHundredError,
     extract_parent_commits,
     fetch_parent_commit_statuses,
     get_last_build_of_parent_commit,
     get_first_jenkins_build_of_current_pull_request,
     get_at_jenkins_build_of_current_pull_request,
     get_pr_jenkins_build_of_current_pull_request,
-    JenkinsHistoryLimit,
 )
+from ..exceptions import FiveHundredError, JenkinsHistoryLimit
 
 logger = Logger(child=True)
 
@@ -55,34 +54,37 @@ def filter_out_hotfix_pull_requests(pull_requests):
     return filtered_pull_request_with_non_hotfixes
 
 
-def get_timestamp_of_pr_build_of_pull_request(pull_request):
+def get_timestamp_of_pr_build_of_pull_request(global_variables, pull_request):
     (
         parent_commit_hash,
         parent_commit_hash_url,
         statuses_of_parent_commit_url,
-    ) = extract_parent_commits(pull_request)
+    ) = extract_parent_commits(global_variables, pull_request)
 
     last_build_of_parent_commit_display_url = fetch_parent_commit_statuses(
-        parent_commit_hash, parent_commit_hash_url, statuses_of_parent_commit_url
+        global_variables,
+        parent_commit_hash,
+        parent_commit_hash_url,
+        statuses_of_parent_commit_url,
     )
 
     if "master" in last_build_of_parent_commit_display_url:
         raise JenkinsHistoryLimit()
 
     first_jenkins_build_of_current_pull_request_url = get_last_build_of_parent_commit(
-        last_build_of_parent_commit_display_url
+        global_variables, last_build_of_parent_commit_display_url
     )
 
     (
         first_jenkins_build_of_current_pull_request_id,
         _,
     ) = get_first_jenkins_build_of_current_pull_request(
-        first_jenkins_build_of_current_pull_request_url
+        global_variables, first_jenkins_build_of_current_pull_request_url
     )
 
     first_jenkins_at_build_of_current_pull_request_id = (
         get_at_jenkins_build_of_current_pull_request(
-            first_jenkins_build_of_current_pull_request_id
+            global_variables, first_jenkins_build_of_current_pull_request_id
         )
     )
 
@@ -90,7 +92,7 @@ def get_timestamp_of_pr_build_of_pull_request(pull_request):
         first_jenkins_pr_build_of_current_pull_request_duration_seconds,
         first_jenkins_pr_build_of_current_pull_request_start_timestamp,
     ) = get_pr_jenkins_build_of_current_pull_request(
-        first_jenkins_at_build_of_current_pull_request_id
+        global_variables, first_jenkins_at_build_of_current_pull_request_id
     )
 
     first_jenkins_pr_build_of_current_pull_request_finish_timestamp = (

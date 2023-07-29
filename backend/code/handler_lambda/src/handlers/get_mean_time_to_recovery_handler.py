@@ -10,7 +10,7 @@ from ..helpers.datetime import (
     jenkins_build_datetime,
     timedelta_to_string,
 )
-from ..calculators.shared import (
+from ..exceptions import (
     FiveHundredError,
     JenkinsHistoryLimit,
 )
@@ -19,18 +19,17 @@ from ..calculators.mean_time_to_recovery import (
     filter_out_hotfix_pull_requests,
     get_timestamp_of_pr_build_of_pull_request,
 )
-from .shared import get_num_of_pull_requests, get_all_pull_requests
+from ..calculators.shared import get_num_of_pull_requests, get_all_pull_requests
 
 logger = Logger(child=True)
 
-BITBUCKET_WORKSPACE = os.getenv("BITBUCKET_WORKSPACE", "workspace")
-BITBUCKET_REPO_SLUG = os.getenv("BITBUCKET_REPO_SLUG", "repo")
 
+def get_mean_time_to_recovery_handler(global_variables):
+    num_of_bitbucket_pull_requests = get_num_of_pull_requests(global_variables)
 
-def get_mean_time_to_recovery_handler(event: APIGatewayProxyEvent):
-    num_of_bitbucket_pull_requests = get_num_of_pull_requests()
-
-    pull_requests_response = get_all_pull_requests(num_of_bitbucket_pull_requests)
+    pull_requests_response = get_all_pull_requests(
+        global_variables, num_of_bitbucket_pull_requests
+    )
 
     pull_requests = []
 
@@ -48,7 +47,9 @@ def get_mean_time_to_recovery_handler(event: APIGatewayProxyEvent):
     for pull_request in filtered_pull_request_with_non_hotfixes:
         try:
             jenkins_pr_build_of_current_pull_request_finish_timestamp = (
-                get_timestamp_of_pr_build_of_pull_request(pull_request)
+                get_timestamp_of_pr_build_of_pull_request(
+                    global_variables, pull_request
+                )
             )
         except JenkinsHistoryLimit:
             break

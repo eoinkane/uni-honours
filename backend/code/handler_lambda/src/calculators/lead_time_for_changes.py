@@ -9,36 +9,39 @@ from .shared import (
     get_first_jenkins_build_of_current_pull_request,
     get_at_jenkins_build_of_current_pull_request,
     get_pr_jenkins_build_of_current_pull_request,
-    JenkinsHistoryLimit
 )
 from ..helpers.datetime import jenkins_build_datetime
+from ..exceptions import JenkinsHistoryLimit
 
 logger = Logger(child=True)
 
 
-def calculate_lead_time_for_changes(pull_request) -> int:
+def calculate_lead_time_for_changes(global_variables, pull_request) -> int:
     (
         parent_commit_hash,
         parent_commit_hash_url,
         statuses_of_parent_commit_url,
-    ) = extract_parent_commits(pull_request)
+    ) = extract_parent_commits(global_variables, pull_request)
 
     last_build_of_parent_commit_display_url = fetch_parent_commit_statuses(
-        parent_commit_hash, parent_commit_hash_url, statuses_of_parent_commit_url
+        global_variables,
+        parent_commit_hash,
+        parent_commit_hash_url,
+        statuses_of_parent_commit_url,
     )
 
     if "master" in last_build_of_parent_commit_display_url:
         raise JenkinsHistoryLimit()
 
     first_jenkins_build_of_current_pull_request_url = get_last_build_of_parent_commit(
-        last_build_of_parent_commit_display_url
+        global_variables, last_build_of_parent_commit_display_url
     )
 
     (
         first_jenkins_build_of_current_pull_request_id,
         first_jenkins_build_of_current_pull_request_timestamp,
     ) = get_first_jenkins_build_of_current_pull_request(
-        first_jenkins_build_of_current_pull_request_url
+        global_variables, first_jenkins_build_of_current_pull_request_url
     )
 
     first_jenkins_build_of_current_pull_request_datetime = jenkins_build_datetime(
@@ -47,7 +50,7 @@ def calculate_lead_time_for_changes(pull_request) -> int:
 
     first_jenkins_at_build_of_current_pull_request_id = (
         get_at_jenkins_build_of_current_pull_request(
-            first_jenkins_build_of_current_pull_request_id
+            global_variables, first_jenkins_build_of_current_pull_request_id
         )
     )
 
@@ -55,7 +58,7 @@ def calculate_lead_time_for_changes(pull_request) -> int:
         first_jenkins_pr_build_of_current_pull_request_duration_seconds,
         first_jenkins_pr_build_of_current_pull_request_start_timestamp,
     ) = get_pr_jenkins_build_of_current_pull_request(
-        first_jenkins_at_build_of_current_pull_request_id
+        global_variables, first_jenkins_at_build_of_current_pull_request_id
     )
 
     # eighth section
