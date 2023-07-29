@@ -4,16 +4,22 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import ClearAllIcon from '@mui/icons-material/ClearAll';
 import Container from '@mui/material/Container';
+import FormControl from "@mui/material/FormControl";
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
+import MenuItem from "@mui/material/MenuItem";
 import Paper from '@mui/material/Paper';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 
 const API_URL = process.env.REACT_APP_API_URL ?? 'url';
 const API_AUTH_TOKEN = process.env.REACT_APP_API_AUTH_TOKEN ?? 'token';
+
+const MAX_PROJECT_ID = parseInt(process.env.REACT_APP_MAX_PROJECT_ID ?? '0');
+const PROJECT_IDS = Array.from(Array(MAX_PROJECT_ID)).map((_,i)=>i+1);
 
 type STATE = 'startup' | 'loading' | 'loaded' | 'error';
 
@@ -54,6 +60,7 @@ class RequestFailureError extends Error {
 
 const App = () => {
   const [metricData, setMetricData] = useState<MetricData | null>(null);
+  const [projectID, setProjectID] = useState<number>(MAX_PROJECT_ID);
   const [state, setState] = useState<STATE>('startup');
 
   const pathHandler = (path: string) => async () => {
@@ -73,6 +80,10 @@ const App = () => {
     }
   };
 
+  const changeProjectIDHandler = (event: SelectChangeEvent) => {
+    setProjectID(parseInt(event.target.value));
+  };
+
   const fetchMetricsHandler = async () => {
     const [
       deploymentFrequencyResponse,
@@ -80,10 +91,10 @@ const App = () => {
       changeFailureRateResponse,
       timeToRestoreServiceResponse,
     ] = await Promise.all([
-      pathHandler('/deployment-frequency')(),
-      pathHandler('/lead-time-for-changes')(),
-      pathHandler('/change-failure-rate')(),
-      pathHandler('/mean-time-to-recovery')(),
+      pathHandler(`/deployment-frequency/${projectID}`)(),
+      pathHandler(`/lead-time-for-changes/${projectID}`)(),
+      pathHandler(`/change-failure-rate/${projectID}`)(),
+      pathHandler(`/mean-time-to-recovery/${projectID}`)(),
     ]);
 
     const statuses = [
@@ -248,6 +259,21 @@ const App = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             DORA Metrics Dashboard
           </Typography>
+          <Typography variant="body1">Project ID:</Typography>
+          <Box sx={{ minWidth: 120, m: 2 }}>
+            <FormControl fullWidth >
+              <Select
+                id="demo-simple-select"
+                value={projectID.toString()}
+                onChange={changeProjectIDHandler}
+                sx={{ background: "white" }}
+                >
+                {PROJECT_IDS.map((loopProjectId) => (
+                  <MenuItem key={crypto.randomUUID()} value={loopProjectId.toString()}>{loopProjectId}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
           <IconButton
             size="large"
             edge="start"
